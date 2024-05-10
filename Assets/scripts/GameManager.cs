@@ -2,23 +2,42 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using System.Linq;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager instance = null; // 아직은 사용 안함.
+    TextManager textManager;
+
     public List<Card> deck = new List<Card>();
-    public List<CardSlot> cardSlots = new List<CardSlot>();
+    public List<CardSlot> cardSlots = new List<CardSlot>(); // 카드가 놓일 슬롯
     public bool[] availableCardSlots;
 
-    private List<Card> cardInSlot = new List<Card>();
+    private List<Card> cardInSlot = new List<Card>(); // 슬롯에 카드가 존재하는지 확인용 리스트
+    private List<string> hand = new List<string>();
 
-    public TMP_Text handCountText;
-    public TMP_Text discardCountText;
+
+    GameObject parent; 
+
+    private void Awake()
+    {
+        if (instance == null)
+        {
+            instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        }
+        else
+        {
+            if (instance != this)
+                Destroy(this.gameObject);
+        }
+    }
 
     void Start()
     {
-        handCountText.text = "3";
-        discardCountText.text = "3";
-        StartCoroutine(autoDrawCard(5));
+        textManager = TextManager.instance;
+        StartCoroutine(autoDrawCard(3));
+        parent = GameObject.Find("numberSprite");
     }
 
     public void DrawCard()
@@ -31,7 +50,7 @@ public class GameManager : MonoBehaviour
             {
                 if (availableCardSlots[i] == true)
                 {
-                    Debug.Log($"{i + 1} 번째 카드 드로우!");
+                    //Debug.Log($"{i + 1} 번째 카드 드로우!");
                     randCard.gameObject.SetActive(true);
                     randCard.handIndex = i;
 
@@ -42,17 +61,64 @@ public class GameManager : MonoBehaviour
 
                     cardInSlot.Insert(i, randCard);
                     deck.Remove(randCard);
+
+                    //Debug.Log(randCard.gameObject.name);
                     return;
                 }
             }
         }
 
-        Debug.Log("남은 덱:" + deck.Count);
+        //Debug.Log("남은 덱:" + deck.Count);
+    }
+
+
+    public void addHand(string name)
+    {
+        hand.Add(name);
+    }
+
+    public void cancelHand(string name)
+    {
+        hand.Remove(name);
+    }
+
+    public int handCount()
+    {
+        return hand.Count;
+    }
+
+    public List<string> getHand()
+    {
+        return hand;
+    }
+
+    public void updateHand(Hand hand)
+    {
+        textManager.handName.text = hand.HandName;
+        textManager.chip.text = (hand.Chip).ToString();
+        textManager.multiple.text = (hand.Multiple).ToString();
+    }
+
+    public void addChip(int c)
+    {
+        textManager.chip.text = (float.Parse(textManager.chip.text) + c).ToString();
+    }
+
+    public void addMultiple(int m)
+    {
+        textManager.multiple.text = (float.Parse(textManager.multiple.text) + m).ToString();
+    }
+
+    public void init()
+    {
+        textManager.handName.text = "";
+        textManager.chip.text = "0";
+        textManager.multiple.text = "0";
     }
 
     public void handPlay()
     {
-        int count = int.Parse(handCountText.text);
+        int count = int.Parse(textManager.handCountText.text);
         if (count > 0)
         {
             int handPlayCount = 0;
@@ -60,7 +126,7 @@ public class GameManager : MonoBehaviour
             {
                 if (cardInSlot[i].hasSelected)
                 {
-                    Debug.Log($"{i + 1} 번째 카드 선택");
+                    //Debug.Log($"{i + 1} 번째 카드 선택");
                     cardInSlot[i].selectCard();
                     handPlayCount++;
                 }
@@ -68,13 +134,15 @@ public class GameManager : MonoBehaviour
 
             StartCoroutine(handPlayProcess(handPlayCount));
 
-            handCountText.text = (count - 1).ToString();
+            textManager.handCountText.text = (count - 1).ToString();
         }
+        Debug.Log(1);
+        hand.Clear();
     }
 
     public void discard()
     {
-        int count = int.Parse(discardCountText.text);
+        int count = int.Parse(textManager.discardCountText.text);
         if (count > 0)
         {
             int discardCount = 0;
@@ -82,46 +150,78 @@ public class GameManager : MonoBehaviour
             {
                 if (cardInSlot[i].hasSelected)
                 {
-                    Debug.Log($"{i + 1} 번째 카드 선택");
+                    //Debug.Log($"{i + 1} 번째 카드 선택");
                     cardInSlot[i].discard();
                     cardInSlot.RemoveAt(i);
                     discardCount++;
                 }
             }
 
-            discardCountText.text = (count - 1).ToString();
+            textManager.discardCountText.text = (count - 1).ToString();
 
             StartCoroutine(autoDrawCard(discardCount));
         }
+
+        hand.Clear();
     }
 
     IEnumerator handPlayProcess(int count)
     {
-        yield return new WaitForSecondsRealtime(0.7f);
+        yield return new WaitForSecondsRealtime(0.5f);
         for (int i = 0; i < cardInSlot.Count; i++)
         {
             if (cardInSlot[i].hasSelected)
             {
-                cardInSlot[i].gameObject.SetActive(false);
+                for (int k = 1; k < 3; k++)
+                {
+                    cardInSlot[i].scaleUp(0.01f);
+                    yield return new WaitForSecondsRealtime(0.02f);
+                }
 
-                Debug.Log($"{i + 1} 번째 카드 처리중");
+                GameObject sprite = cardInSlot[i].getSpriteObject(parent);
+                sprite.SetActive(true);
+                sprite.transform.position = cardInSlot[i].transform.position;
+                addChip(cardInSlot[i].name[0] - '0');
+
+                //Debug.Log($"{i + 1} 번째 카드 처리중");
                 yield return new WaitForSecondsRealtime(0.6f);
+                sprite.SetActive(false);
+                yield return new WaitForSecondsRealtime(0.35f);
             }
         }
-
+        StartCoroutine(addScore());
         for (int i = cardInSlot.Count - 1; i >= 0; i--)
         {
             if (cardInSlot[i].hasSelected)
             {
+                cardInSlot[i].gameObject.SetActive(false);
                 cardInSlot.RemoveAt(i);
             }
         }
-
         StartCoroutine(autoDrawCard(count));
+    }
+
+    IEnumerator addScore()
+    {
+        float current = float.Parse(textManager.score.text);
+        float target = current + float.Parse(textManager.chip.text) * float.Parse(textManager.multiple.text);
+
+        float duration = 0.5f;
+        float offset = (target - current) / duration;
+
+        while (current < target)
+        {
+            current += (offset * Time.deltaTime);
+            textManager.score.text = ((int)current).ToString();
+            yield return null;
+        }
+
+        textManager.score.text = target.ToString();
     }
 
     IEnumerator autoDrawCard(int count)
     {
+        init();
         yield return new WaitForSecondsRealtime(0.5f);
         for (int i = 0; i < count; i++)
         {
