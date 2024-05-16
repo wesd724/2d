@@ -56,13 +56,13 @@ public class Card : MonoBehaviour
     {
 
         gm.availableCardSlots[handIndex] = true;
-        transform.position += Vector3.up * 2.2f;
+        StartCoroutine(handAnim(transform.position, transform.position + Vector3.up * 2.2f));
     }
 
-    public void discard()
+    public void end()
     {
         gm.availableCardSlots[handIndex] = true;
-        gameObject.SetActive(false);
+        StartCoroutine(drawAnim(transform.position, transform.position + new Vector3(10, 0, 0), 0.3f, true));
     }
 
     public void scaleUp(float d)
@@ -74,5 +74,46 @@ public class Card : MonoBehaviour
     {
         string name = this.name.Substring(0, this.name.IndexOf("-"));
         return parent.transform.GetChild(int.Parse(name)).gameObject;
+    }
+
+    public IEnumerator drawAnim(Vector3 start, Vector3 target, float endTime = 0.3f, bool isEnd = false)
+    {
+        float startTime = 0f;
+        Quaternion startRotation, endRotation;
+        if (isEnd)
+        {
+            startRotation = Quaternion.Euler(0, 0, 0);
+            endRotation = Quaternion.Euler(-80, 0, 70);
+        } else
+        {
+            startRotation = Quaternion.Euler(-80, 0, 70);
+            endRotation = Quaternion.Euler(0, 0, 0);
+        }
+        while (startTime <= endTime)
+        {
+            transform.position = Vector3.Lerp(start, target, startTime / endTime);
+            transform.rotation = Quaternion.Lerp(startRotation, endRotation, startTime / endTime);
+            startTime += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.position = target;
+        transform.rotation = endRotation; // 미세한 오차를 제거
+
+        if (isEnd) gameObject.SetActive(false);
+    }
+
+    public IEnumerator handAnim(Vector3 start, Vector3 target)
+    {
+        float startTime = 0f;
+        float endTime = 0.1f;
+        while (startTime <= endTime)
+        {
+            transform.position = Vector3.Lerp(start, target, startTime / endTime);
+            startTime += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.position = target; // 미세한 오차를 제거
     }
 }
