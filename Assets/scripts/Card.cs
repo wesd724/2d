@@ -4,22 +4,25 @@ using UnityEngine;
 
 public class Card : MonoBehaviour
 {
-    public bool hasbeenPlayed;
-    public bool hasSelected;
+    public bool hasSelected = false;
     public int handIndex;
     private GameManager gm;
+    private AudioManager am;
     private bool clicked = false;
+    private bool mouseOver = false;
 
 
     public void Start()
     {
         gm = FindObjectOfType<GameManager>();
+        am = FindObjectOfType<AudioManager>();
     }
     public void OnMouseDown()
     {
         if (!hasSelected && gm.handCount() < 2)
         {
             transform.position += Vector3.up * 0.6f;
+            am.select();
             hasSelected = true;
             clicked = true;
             gm.addHand(this.name);
@@ -36,12 +39,21 @@ public class Card : MonoBehaviour
         gm.updateHand(hand);
     }
 
+    public void init()
+    {
+        hasSelected = false;
+        handIndex = -1;
+        clicked = false;
+        mouseOver = false;
+    }
+
     public void OnMouseEnter()
     {
         if (!hasSelected)
         {
             transform.position += Vector3.up * 0.1f;
         }
+        mouseOver = true;
     }
 
     public void OnMouseExit()
@@ -50,13 +62,13 @@ public class Card : MonoBehaviour
         {
             transform.position += Vector3.down * 0.1f;
         }
+        mouseOver = false;
     }
 
-    public void selectCard()
+    public IEnumerator selectCard()
     {
-
         gm.availableCardSlots[handIndex] = true;
-        StartCoroutine(handAnim(transform.position, transform.position + Vector3.up * 2.2f));
+        yield return StartCoroutine(handAnim(transform.position, transform.position + Vector3.up * 2.2f));
     }
 
     public void end()
@@ -84,7 +96,8 @@ public class Card : MonoBehaviour
         {
             startRotation = Quaternion.Euler(0, 0, 0);
             endRotation = Quaternion.Euler(-80, 0, 70);
-        } else
+        }
+        else
         {
             startRotation = Quaternion.Euler(-80, 0, 70);
             endRotation = Quaternion.Euler(0, 0, 0);
@@ -96,11 +109,10 @@ public class Card : MonoBehaviour
             startTime += Time.deltaTime;
             yield return null;
         }
-
         transform.position = target;
         transform.rotation = endRotation; // 미세한 오차를 제거
-
-        if (isEnd) gameObject.SetActive(false);
+        if (mouseOver) transform.position += Vector3.up * 0.1f;
+        //if (isEnd) gameObject.SetActive(false);
     }
 
     public IEnumerator handAnim(Vector3 start, Vector3 target)
@@ -115,5 +127,6 @@ public class Card : MonoBehaviour
         }
 
         transform.position = target; // 미세한 오차를 제거
+        yield return new WaitForSecondsRealtime(0.3f);
     }
 }

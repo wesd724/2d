@@ -4,35 +4,32 @@ using UnityEngine;
 
 public class moveUI : MonoBehaviour
 {
-    public deck deck;
-    void Start()
+    public RectTransform ui;
+    public IEnumerator moveUp(int y)
     {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-    public IEnumerator moveUp()
-    {
-        deck.use();
-        while (transform.position.y <= 610)
+        while (ui.anchoredPosition.y <= y)
         {
-            transform.position += Vector3.up * 10;
+            ui.anchoredPosition += Vector2.up * 5;
             yield return null;
         }
     }
 
-    public IEnumerator moveDown()
+    public IEnumerator moveDown(int y)
     {
-        while (transform.position.y >= -500)
+        while (ui.anchoredPosition.y >= y)
         {
-            transform.position += Vector3.down * 10;
+            ui.anchoredPosition += Vector2.down * 5;
             yield return null;
         }
         transform.parent.gameObject.SetActive(false);
+    }
+
+    public IEnumerator explainDown()
+    {
+        while (ui.anchoredPosition.y >= 355)
+        {
+            ui.anchoredPosition += Vector2.down * 5;
+            yield return null;
+        }
     }
 }

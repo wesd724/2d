@@ -8,17 +8,7 @@ public class cardback : MonoBehaviour
     public GameObject deckButton;
     public GameObject watchDeck;
     public moveUI ui;
-
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public deck deck;
 
     private void OnMouseEnter()
     {
@@ -27,13 +17,13 @@ public class cardback : MonoBehaviour
 
     private void OnMouseExit()
     {
-
         deckButton.SetActive(false);
     }
 
     public void OnMouseDown()
     {
         watchDeck.SetActive(true);
-        StartCoroutine(ui.moveUp());
+        deck.use();
+        StartCoroutine(ui.moveUp(76));
     }
 }

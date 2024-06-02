@@ -6,11 +6,13 @@ public class jokbo
 {
     public static Dictionary<string, List<float>> jokboList = new Dictionary<string, List<float>>()
     {
+        ["»ïÆÈ±¤¶¯"] = new List<float> { 300f, 4f },
         ["±¤¶¯"] = new List<float> { 250f, 4f },
         ["¶¯"] = new List<float> { 100f, 4f },
         ["¾Ë¸®"] = new List<float> { 80f, 3f },
         ["µ¶»ç"] = new List<float> { 60f, 3f },
-        ["»æ"] = new List<float> { 40f, 2f },
+        ["±¸»æ"] = new List<float> { 50f, 2f },
+        ["Àå»æ"] = new List<float> { 40f, 2f },
         ["Àå»ç"] = new List<float> { 40f, 1.5f },
         ["¼¼·ú"] = new List<float> { 20f, 1.5f },
         ["²ý"] = new List<float> { 20f, 1f },
@@ -18,13 +20,14 @@ public class jokbo
 
     public static Hand handCheck(List<string> hand)
     {
-        if (hand.Count == 0) {
+        if (hand.Count == 0)
+        {
             return new Hand("", new List<float> { 0, 0 });
         }
 
         if (hand.Contains("3-1") && hand.Contains("8-1"))
         {
-            return new ("»ïÆÈ±¤¶¯", jokboList["»ïÆÈ±¤¶¯"]);
+            return new("»ïÆÈ±¤¶¯", jokboList["»ïÆÈ±¤¶¯"]);
         }
 
         if (hand.Contains("1-1") && hand.Contains("3-1") ||
@@ -51,12 +54,12 @@ public class jokbo
 
         if (hand.Any(x => x.StartsWith("1-")) && hand.Any(x => x.StartsWith("9-")))
         {
-            return new Hand("±¸»æ", jokboList["»æ"]);
+            return new Hand("±¸»æ", jokboList["±¸»æ"]);
         }
 
         if (hand.Any(x => x.StartsWith("1-")) && hand.Any(x => x.StartsWith("10-")))
         {
-            return new Hand("Àå»æ", jokboList["»æ"]);
+            return new Hand("Àå»æ", jokboList["Àå»æ"]);
         }
 
         if (hand.Any(x => x.StartsWith("4-")) && hand.Any(x => x.StartsWith("10-")))

@@ -7,13 +7,14 @@ public class TextManager : MonoBehaviour
 {
     public static TextManager instance = null;
 
-    public TMP_Text goal;
-    public TMP_Text score;
+    public TextMeshProUGUI goal;
+    public TextMeshProUGUI score;
     public TextMeshProUGUI handName;
-    public TMP_Text chip;
-    public TMP_Text multiple;
-    public TMP_Text handCountText;
-    public TMP_Text discardCountText;
+    public TextMeshProUGUI chip;
+    public TextMeshProUGUI multiple;
+    public TextMeshProUGUI handCount;
+    public TextMeshProUGUI discardCount;
+    public TextMeshProUGUI cash;
 
     private void Awake()
     {
@@ -30,11 +31,13 @@ public class TextManager : MonoBehaviour
     }
     void Start()
     {
+        goal.text = "10";
         score.text = "0";
         handName.text = "";
         chip.text = "0";
         multiple.text = "0";
-        handCountText.text = "3";
-        discardCountText.text = "4";
+        handCount.text = "3";
+        discardCount.text = "4";
+        cash.text = "5";
     }
 }
