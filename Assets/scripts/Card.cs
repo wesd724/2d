@@ -11,11 +11,15 @@ public class Card : MonoBehaviour
     private bool clicked = false;
     private bool mouseOver = false;
 
+    Vector2 origin; // 원래 카드 위치(슬롯 위)
+
+    private Sprite sprite;
 
     public void Start()
     {
         gm = FindObjectOfType<GameManager>();
         am = FindObjectOfType<AudioManager>();
+        sprite = gameObject.GetComponent<SpriteRenderer>().sprite;
     }
     public void OnMouseDown()
     {
@@ -25,14 +29,14 @@ public class Card : MonoBehaviour
             am.select();
             hasSelected = true;
             clicked = true;
-            gm.addHand(this.name);
+            gm.addHand(sprite.name);
         }
         else if (clicked)
         {
             transform.position += Vector3.down * 0.6f;
             hasSelected = false;
             clicked = false;
-            gm.cancelHand(this.name);
+            gm.cancelHand(sprite.name);
         }
 
         Hand hand = jokbo.handCheck(gm.getHand());
@@ -60,9 +64,14 @@ public class Card : MonoBehaviour
     {
         if (!hasSelected)
         {
-            transform.position += Vector3.down * 0.1f;
+            transform.position = origin;
         }
         mouseOver = false;
+    }
+
+    public string getSpriteName()
+    {
+        return sprite.name;
     }
 
     public IEnumerator selectCard()
@@ -84,12 +93,13 @@ public class Card : MonoBehaviour
 
     public GameObject getSpriteObject(GameObject parent)
     {
-        string name = this.name.Substring(0, this.name.IndexOf("-"));
+        string name = sprite.name.Substring(0, sprite.name.IndexOf("-"));
         return parent.transform.GetChild(int.Parse(name)).gameObject;
     }
 
     public IEnumerator drawAnim(Vector3 start, Vector3 target, float endTime = 0.3f, bool isEnd = false)
     {
+        origin = target;
         float startTime = 0f;
         Quaternion startRotation, endRotation;
         if (isEnd)

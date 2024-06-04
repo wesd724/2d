@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour
     IEnumerator method = null;
 
 
-    GameObject parent;
+    GameObject parent; // 점수 스프라이트 부모 오브젝트
 
     private void Awake()
     {
@@ -55,17 +55,20 @@ public class GameManager : MonoBehaviour
     {
         init();
         yield return new WaitForSecondsRealtime(0.3f);
-        for (int i = 0; i < useCard.Count; i++)
+        StartCoroutine(autoDrawCard(3));
+    }
+
+    public IEnumerator organize()
+    {
+        foreach (Card card in useCard)
         {
             audioManager.restart();
-            yield return StartCoroutine(useCard[i].drawAnim(useCard[i].transform.position, deck[0].transform.position, 0.15f));
-            useCard[i].init();
-            deck.Add(useCard[i]);
-            useCard[i].gameObject.SetActive(false);
+            yield return StartCoroutine(card.drawAnim(card.transform.position, deck[0].transform.position, 0.15f));
+            card.init();
+            deck.Add(card);
+            card.gameObject.SetActive(false);
         }
         useCard.Clear();
-        yield return new WaitForSecondsRealtime(0.3f);
-        StartCoroutine(autoDrawCard(3));
     }
 
     public void DrawCard()
@@ -127,8 +130,9 @@ public class GameManager : MonoBehaviour
         textManager.multiple.text = (hand.Multiple).ToString();
     }
 
-    public void addChip(int c)
+    public void addChip(string name)
     {
+        int c = int.Parse(name.Split("-")[0]);
         textManager.chip.text = (float.Parse(textManager.chip.text) + c).ToString();
     }
 
@@ -223,12 +227,12 @@ public class GameManager : MonoBehaviour
                 sprite.SetActive(true);
                 audioManager.chip();
                 sprite.transform.position = cardInSlot[i].transform.position;
-                addChip(int.Parse(cardInSlot[i].name.Split("-")[0]));
+                addChip(cardInSlot[i].getSpriteName());
 
                 //Debug.Log($"{i + 1} 번째 카드 처리중");
-                yield return new WaitForSecondsRealtime(0.6f);
+                yield return new WaitForSecondsRealtime(0.5f);
                 sprite.SetActive(false);
-                yield return new WaitForSecondsRealtime(0.35f);
+                yield return new WaitForSecondsRealtime(0.15f);
             }
         }
         yield return new WaitForSecondsRealtime(0.3f);
@@ -292,12 +296,12 @@ public class GameManager : MonoBehaviour
     IEnumerator autoDrawCard(int count)
     {
         nextTurn();
-        yield return new WaitForSecondsRealtime(0.5f);
+        yield return new WaitForSecondsRealtime(0.3f);
         for (int i = 0; i < count; i++)
         {
             audioManager.draw();
             DrawCard();
-            yield return new WaitForSecondsRealtime(0.3f);
+            yield return new WaitForSecondsRealtime(0.2f);
         }
     }
 }

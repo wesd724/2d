@@ -38,7 +38,7 @@ public class jokbo
 
         for (int i = 10; i > 0; i--)
         {
-            if (hand.Count(x => x.StartsWith($"{i}")) == 2)
+            if (hand.Count(x => x.StartsWith($"{i}-")) == 2)
                 return new Hand("¶¯", jokboList["¶¯"]);
         }
 

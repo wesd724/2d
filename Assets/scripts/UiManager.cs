@@ -24,13 +24,18 @@ public class UiManager : MonoBehaviour
     public void readyWindowOpen() // 준비 (상점) 창 
     {
         readyWindow.transform.parent.gameObject.SetActive(true);
-        StartCoroutine(completeExplain.moveUp(765));
-        StartCoroutine(readyWindowAnimation());
+        StartCoroutine(organize());
     }
 
+    IEnumerator organize()
+    {
+        StartCoroutine(completeExplain.moveUp(765));
+        yield return StartCoroutine(completeWindow.moveDown(-915));
+        yield return StartCoroutine(GameManager.instance.organize());
+        StartCoroutine(readyWindowAnimation());
+    }
     IEnumerator readyWindowAnimation()
     {
-        yield return StartCoroutine(completeWindow.moveDown(-915));
         yield return new WaitForSecondsRealtime(0.3f);
         StartCoroutine(readyExplain.explainDown());
         StartCoroutine(readyWindow.moveUp(-185));

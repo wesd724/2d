@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class readyManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public GameObject[] consumes;
 
-    // Update is called once per frame
-    void Update()
+    void OnEnable()
+    {
+        foreach(GameObject g in consumes)
+            g.gameObject.SetActive(true);
+    }
+    void Start()
     {
         
     }
