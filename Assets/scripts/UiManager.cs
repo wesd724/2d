@@ -13,6 +13,8 @@ public class UiManager : MonoBehaviour
     public moveUI roundSelect;
     public moveUI roundExplain;
 
+    public readyManager readyManager;
+
     public void completeWindowOpen() // 목표 달성 완료 창
     {
         string goal = TextManager.instance.goal.text;
@@ -34,11 +36,15 @@ public class UiManager : MonoBehaviour
         yield return StartCoroutine(GameManager.instance.organize());
         StartCoroutine(readyWindowAnimation());
     }
+
+
     IEnumerator readyWindowAnimation()
     {
         yield return new WaitForSecondsRealtime(0.3f);
         StartCoroutine(readyExplain.explainDown());
-        StartCoroutine(readyWindow.moveUp(-185));
+        yield return StartCoroutine(readyWindow.moveUp(190));
+        yield return new WaitForSecondsRealtime(0.05f);
+        StartCoroutine(readyManager.show());
     }
 
     public void roundSelectOpen() // 라운드 선택 창

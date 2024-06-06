@@ -7,11 +7,18 @@ using UnityEngine.EventSystems;
 public class changeMyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
 {
     Image image; // 현재 선택한 덱의 카드
-    GameObject select; // 선택한 강화카드
     int[] numbers; // 5장 덱들의 실제 인덱스
+    RectTransform pos; // 5장 덱들의 위치
+    Vector2 origin; // 덱들의 원래 위치
 
-    RectTransform pos;
-    Vector2 origin;
+    Image original; // 원래 강화카드
+    GameObject select; // 선택한 강화카드(덮어씌운 구조)
+    
+    RectTransform selectPos; // 선택한 강화카드 위치
+    Vector2 selectOrigin; // 선택한 강화카드 원래 위치
+
+    public GameObject show;
+
     int index;
     bool status;
 
@@ -51,10 +58,7 @@ public class changeMyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         {
             if (i != index)
             {
-                changeMyCard c = posList[i].GetComponent<changeMyCard>();
-                c.setStatus(true);
-                c.setButton(false);
-                posList[i].sizeDelta = origin;
+                init(i);
             }
         }
 
@@ -68,6 +72,22 @@ public class changeMyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         }
     }
 
+    void init(int i)
+    {
+        changeMyCard c = posList[i].GetComponent<changeMyCard>();
+        c.setStatus(true);
+        c.setButton(false);
+        posList[i].sizeDelta = origin;
+    }
+
+    void Enable(bool flag)
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            posList[i].GetComponent<changeMyCard>().enabled = flag;
+        }
+    }
+
     void setStatus(bool status)
     {
         this.status = status;
@@ -78,31 +98,66 @@ public class changeMyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         button.gameObject.SetActive(status);
     }
 
-    public void selectCard(int[] numbers, GameObject obj)
+    public void selectCard(Image original, GameObject obj)
     {
-        this.numbers = numbers;
+        this.original = original;
+        Enable(true);
         select = obj;
+        selectPos = select.GetComponent<RectTransform>();
+        selectOrigin = selectPos.anchoredPosition;
 
         //foreach (int i in numbers) Debug.Log(i);
+    }
+
+    public void setNumbers(int[] numbers)
+    {
+        this.numbers = numbers;
     }
 
     void changeCard()
     {
         posList[index].sizeDelta = origin;
-        image.sprite = select.GetComponent<Image>().sprite;
-        Debug.Log(numbers[index]);
-        Debug.Log(GameManager.instance.deck[numbers[index]].name);
-        GameManager.instance.deck[numbers[index]].GetComponent<SpriteRenderer>().sprite = image.sprite;
+        StartCoroutine(changeAnimation(selectPos.anchoredPosition, new Vector2(-32f + (index * 106f), -329f), 0.2f));
         button.gameObject.SetActive(false);
+    }
+
+    IEnumerator changeAnimation(Vector2 start, Vector2 target, float endTime)
+    {
+        float startTime = 0f;
+        while (startTime <= endTime)
+        {
+            selectPos.anchoredPosition = Vector3.Lerp(start, target, startTime / endTime);
+            startTime += Time.deltaTime;
+            yield return null;
+        }
+
+        selectPos.anchoredPosition = target; // 미세한 오차를 제거
+        image.sprite = select.GetComponent<Image>().sprite;
+        GameManager.instance.deck[numbers[index]].GetComponent<SpriteRenderer>().sprite = image.sprite;
 
         select.SetActive(false); // 선택한 강화카드 없앰
-        transform.parent.parent.gameObject.SetActive(false); // show 오브젝트 종료
+
+        //yield return StartCoroutine(transform.parent.GetComponent<changeDeckList>().collect(30f, -100f, 0.3f));
+        yield return new WaitForSecondsRealtime(0.35f);
+        selectPos.anchoredPosition = selectOrigin;
+        show.SetActive(false); // show 오브젝트 종료
+        show.gameObject.transform.parent.GetChild(3).gameObject.SetActive(false);
+        Enable(false);
     }
-    
+
+
     public void cancel()
     {
+        for(int i = 0; i < 5; i++)
+        {
+            init(i);
+        }
         select.SetActive(false);
-        transform.parent.parent.gameObject.SetActive(false);
+        show.gameObject.transform.parent.GetChild(3).gameObject.SetActive(false);
+        show.SetActive(false);
+        Enable(false);
+
+        original.enabled = true; // 원래 UI에 있는 강화카드 켜기
     }
-    
+
 }

@@ -20,7 +20,7 @@ public class GameManager : MonoBehaviour
 
     public List<Card> useCard = new List<Card>(); // 사용한 카드(패 포함)
 
-    public Transform deckPostion; // 덱 위치
+    public BoxCollider2D deckPostion; // 덱 위치
     public deck currentDeck; // 현재 보유 덱
 
     IEnumerator method = null;
@@ -48,11 +48,12 @@ public class GameManager : MonoBehaviour
         audioManager = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         uiManager = GameObject.Find("UiManager").GetComponent<UiManager>();
         textManager = TextManager.instance;
-        StartCoroutine(startGame());
+        //StartCoroutine(startGame());
     }
 
     public IEnumerator startGame()
     {
+        deckPostion.enabled = true;
         init();
         yield return new WaitForSecondsRealtime(0.3f);
         StartCoroutine(autoDrawCard(3));
@@ -276,6 +277,7 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(0.8f);
             nextTurn();
             StopCoroutine(method);
+            deckPostion.enabled = false;
             yield return StartCoroutine(clean());
             uiManager.completeWindowOpen();
         }

@@ -3,23 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class changeDeckList : MonoBehaviour
+public class upgradeList : MonoBehaviour
 {
     public HorizontalLayoutGroup hlg;
-    public shopDeck shopdeck;
+    public consume consume;
 
     void OnEnable()
     {
-        hlg.spacing = -100f;
+        hlg.spacing = -160f;
     }
 
     public IEnumerator expand(float current, float target, float duration)
     {
-        shopdeck.setting();
+        consume.setting();
         yield return new WaitForSecondsRealtime(0.3f);
         float start = 0;
 
-
+        
         while (start < duration)
         {
             hlg.spacing = Mathf.Lerp(current, target, start / duration);
@@ -32,7 +32,7 @@ public class changeDeckList : MonoBehaviour
 
     public IEnumerator collect(float current, float target, float duration)
     {
-        shopdeck.back();
+        consume.back();
         yield return new WaitForSecondsRealtime(0.3f);
         float start = 0;
 
@@ -48,6 +48,6 @@ public class changeDeckList : MonoBehaviour
 
     public void back()
     {
-        shopdeck.back();
+        consume.back();
     }
 }

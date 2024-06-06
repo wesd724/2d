@@ -4,13 +4,37 @@ using UnityEngine;
 
 public class readyManager : MonoBehaviour
 {
-    public GameObject[] consumes;
+    public upgradeList upgradeList;
+    public serviceList serviceList;
+    public changeDeckList changeDeckList;
 
-    void OnEnable()
+    public void reroll()
     {
-        foreach(GameObject g in consumes)
-            g.gameObject.SetActive(true);
+        StartCoroutine(re());
     }
+
+    IEnumerator re()
+    {
+        StartCoroutine(changeDeckList.collect(27f, -100f, 0.3f));
+        StartCoroutine(upgradeList.collect(50.42f, -160f, 0.3f));
+        yield return StartCoroutine(serviceList.collect(53f, -159f, 0.3f));
+        yield return new WaitForSecondsRealtime(0.1f);
+
+        yield return StartCoroutine(changeDeckList.expand(-100f, 27f, 0.3f));
+        yield return StartCoroutine(upgradeList.expand(-160f, 50.42f, 0.3f));
+        yield return StartCoroutine(serviceList.expand(-159f, 53f, 0.3f));
+    }
+
+    public IEnumerator show()
+    {
+        changeDeckList.back();
+        upgradeList.back();
+        serviceList.back();
+        yield return StartCoroutine(changeDeckList.expand(-100f, 27f, 0.3f));
+        yield return StartCoroutine(upgradeList.expand(-160f, 50.42f, 0.3f));
+        yield return StartCoroutine(serviceList.expand(-159f, 53f, 0.3f));
+    }
+
     void Start()
     {
         
