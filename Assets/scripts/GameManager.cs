@@ -11,9 +11,11 @@ public class GameManager : MonoBehaviour
     AudioManager audioManager;
     UiManager uiManager;
 
-    public List<Card> deck = new List<Card>();
+    public List<Card> deck = new List<Card>(15);
     public List<CardSlot> cardSlots = new List<CardSlot>(); // 카드가 놓일 슬롯
     public bool[] availableCardSlots;
+
+    public List<string> serviceDeck = new List<string>(); // 서비스 카드들의 이름
 
     private List<Card> cardInSlot = new List<Card>(); // 슬롯에 카드가 존재하는지 확인용 리스트
     private List<string> hand = new List<string>(); // 족보 확인용

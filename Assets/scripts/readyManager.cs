@@ -27,12 +27,16 @@ public class readyManager : MonoBehaviour
 
     public IEnumerator show()
     {
-        changeDeckList.back();
-        upgradeList.back();
-        serviceList.back();
         yield return StartCoroutine(changeDeckList.expand(-100f, 27f, 0.3f));
         yield return StartCoroutine(upgradeList.expand(-160f, 50.42f, 0.3f));
         yield return StartCoroutine(serviceList.expand(-159f, 53f, 0.3f));
+    }
+    
+    public void showBack()
+    {
+        changeDeckList.back();
+        upgradeList.back();
+        serviceList.back();
     }
 
     void Start()

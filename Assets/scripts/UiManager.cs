@@ -20,7 +20,7 @@ public class UiManager : MonoBehaviour
         string goal = TextManager.instance.goal.text;
         transform.GetChild(2).GetComponent<completeManager>().open(goal, int.Parse(goal) / 10);
         StartCoroutine(completeExplain.explainDown());
-        StartCoroutine(completeWindow.moveUp(-185));
+        StartCoroutine(completeWindow.moveUp(-175));
     }
 
     public void readyWindowOpen() // 준비 (상점) 창 
@@ -42,6 +42,7 @@ public class UiManager : MonoBehaviour
     {
         yield return new WaitForSecondsRealtime(0.3f);
         StartCoroutine(readyExplain.explainDown());
+        readyManager.showBack();
         yield return StartCoroutine(readyWindow.moveUp(190));
         yield return new WaitForSecondsRealtime(0.05f);
         StartCoroutine(readyManager.show());

@@ -14,14 +14,14 @@ public class moveUI : MonoBehaviour
         }
     }
 
-    public IEnumerator moveDown(int y)
+    public IEnumerator moveDown(int y, bool flag = false)
     {
         while (ui.anchoredPosition.y >= y)
         {
             ui.anchoredPosition += Vector2.down * 5;
             yield return null;
         }
-        transform.parent.gameObject.SetActive(false);
+        transform.parent.gameObject.SetActive(flag);
     }
 
     public IEnumerator explainDown()
