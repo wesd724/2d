@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using TMPro;
 
 public class service : MonoBehaviour
 {
     public Image[] images;
+    public TextMeshProUGUI[] texts;
     public GameObject serviceCardList; // 강화할 카드 목록을 가진 부모 오브젝트
                                        // 이 변수에서 랜덤으로 3개를 뽑아 img1, 2, 3의 sprite 적용한다.
     public Image cardback;
@@ -29,9 +31,14 @@ public class service : MonoBehaviour
 
         for (int i = 0; i < 2; i++)
         {
-            Sprite sprite = serviceCardList.transform.GetChild(numbers[i]).GetComponent<Image>().sprite;
+            Transform child = serviceCardList.transform.GetChild(numbers[i]);
+            Sprite sprite = child.GetComponent<Image>().sprite;
             images[i].enabled = true;
             images[i].sprite = sprite;
+
+            int price = check(sprite.name);
+            texts[i].text = $"${price}";
+            images[i].GetComponent<cardInfo>().judge(sprite.name);
         }
     }
 
@@ -39,7 +46,21 @@ public class service : MonoBehaviour
     {
         for (int i = 0; i < 2; i++)
         {
+            images[i].enabled = true;
             images[i].sprite = cardback.sprite;
         }
+    }
+
+    public int check(string name)
+    {
+        if(name.Contains("ㅈㄱ") || name == "ㅂㄹㄱ")
+        {
+            return Random.Range(5, 7);
+        }
+        else if (name == "ㄸㄱㅇ" || name == "ㅆㅇ" || name == "ㅈㅂㅁㅅㅌ")
+        {
+            return Random.Range(8, 11);
+        }
+        return Random.Range(4, 7);
     }
 }

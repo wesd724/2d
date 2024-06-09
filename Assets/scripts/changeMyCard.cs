@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using TMPro;
 
 public class changeMyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
 {
@@ -24,6 +25,8 @@ public class changeMyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     public Button button; // 5장 버튼
     public RectTransform[] posList; // 5장 덱들의 좌표
+
+    string cashPriceText; // 가격을 가져오기
 
     void OnEnable()
     {
@@ -98,7 +101,7 @@ public class changeMyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         button.gameObject.SetActive(status);
     }
 
-    public void selectCard(Image original, GameObject obj)
+    public void selectCard(Image original, GameObject obj, TextMeshProUGUI cashText)
     {
         this.original = original;
         Enable(true);
@@ -106,6 +109,7 @@ public class changeMyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
         selectPos = select.GetComponent<RectTransform>();
         selectOrigin = selectPos.anchoredPosition;
 
+        cashPriceText = cashText.text;
         //foreach (int i in numbers) Debug.Log(i);
     }
 
@@ -116,9 +120,24 @@ public class changeMyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     void changeCard()
     {
-        posList[index].sizeDelta = origin;
-        StartCoroutine(changeAnimation(selectPos.anchoredPosition, new Vector2(-32f + (index * 106f), -329f), 0.2f));
-        button.gameObject.SetActive(false);
+        if(buy())
+        {
+            posList[index].sizeDelta = origin;
+            StartCoroutine(changeAnimation(selectPos.anchoredPosition, new Vector2(-32f + (index * 106f), -329f), 0.2f));
+            button.gameObject.SetActive(false);
+        }
+    }
+
+    bool buy()
+    {
+        int cash = int.Parse(TextManager.instance.cash.text);
+        int price = int.Parse(cashPriceText[1..]) ;
+        if (cash >= price)
+        {
+            TextManager.instance.cash.text = (cash - price).ToString();
+            return true;
+        }
+        return false;
     }
 
     IEnumerator changeAnimation(Vector2 start, Vector2 target, float endTime)

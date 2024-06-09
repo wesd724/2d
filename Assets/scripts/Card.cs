@@ -93,8 +93,12 @@ public class Card : MonoBehaviour
 
     public GameObject getSpriteObject(GameObject parent)
     {
-        string name = sprite.name.Substring(0, sprite.name.IndexOf("-"));
-        return parent.transform.GetChild(int.Parse(name)).gameObject;
+        if(sprite.name != "empty")
+        {
+            string name = sprite.name.Split("-")[0];
+            return parent.transform.GetChild(int.Parse(name)).gameObject;
+        }
+        return parent.transform.GetChild(0).gameObject;
     }
 
     public IEnumerator drawAnim(Vector3 start, Vector3 target, float endTime = 0.3f, bool isEnd = false)

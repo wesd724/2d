@@ -12,6 +12,5 @@ public class Hand
         this.Chip = point[0];
         this.Multiple = point[1];
     }
-
    
 }

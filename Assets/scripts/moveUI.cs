@@ -9,7 +9,7 @@ public class moveUI : MonoBehaviour
     {
         while (ui.anchoredPosition.y <= y)
         {
-            ui.anchoredPosition += Vector2.up * 5;
+            ui.anchoredPosition += Vector2.up * 8;
             yield return null;
         }
     }
@@ -18,7 +18,7 @@ public class moveUI : MonoBehaviour
     {
         while (ui.anchoredPosition.y >= y)
         {
-            ui.anchoredPosition += Vector2.down * 5;
+            ui.anchoredPosition += Vector2.down * 8;
             yield return null;
         }
         transform.parent.gameObject.SetActive(flag);
@@ -28,7 +28,7 @@ public class moveUI : MonoBehaviour
     {
         while (ui.anchoredPosition.y >= 355)
         {
-            ui.anchoredPosition += Vector2.down * 5;
+            ui.anchoredPosition += Vector2.down * 8;
             yield return null;
         }
     }

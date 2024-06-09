@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using System.Linq;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -11,11 +12,11 @@ public class GameManager : MonoBehaviour
     AudioManager audioManager;
     UiManager uiManager;
 
-    public List<Card> deck = new List<Card>(15);
+    public List<Card> deck = new List<Card>();
     public List<CardSlot> cardSlots = new List<CardSlot>(); // 카드가 놓일 슬롯
     public bool[] availableCardSlots;
 
-    public List<string> serviceDeck = new List<string>(); // 서비스 카드들의 이름
+    public List<Image> serviceDeck = new List<Image>(); // 서비스 카드들의 이름
 
     private List<Card> cardInSlot = new List<Card>(); // 슬롯에 카드가 존재하는지 확인용 리스트
     private List<string> hand = new List<string>(); // 족보 확인용
@@ -25,10 +26,12 @@ public class GameManager : MonoBehaviour
     public BoxCollider2D deckPostion; // 덱 위치
     public deck currentDeck; // 현재 보유 덱
 
+    bool buttonClickStatus = false; // 버튼 한번만 클릭하게 설정
+
     IEnumerator method = null;
 
 
-    GameObject parent; // 점수 스프라이트 부모 오브젝트
+    GameObject number; // 점수 스프라이트 부모 오브젝트
 
     private void Awake()
     {
@@ -46,19 +49,26 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        parent = GameObject.Find("numberSprite");
+        number = GameObject.Find("numberSprite");
         audioManager = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         uiManager = GameObject.Find("UiManager").GetComponent<UiManager>();
         textManager = TextManager.instance;
         //StartCoroutine(startGame());
+
+        uiManager.completeWindowOpen();
     }
 
     public IEnumerator startGame()
     {
-        deckPostion.enabled = true;
+        serviceDeck.ForEach(img =>
+        {
+            img.GetComponent<cardInfo>().judge(img.sprite.name);
+        });
+        deckPostion.enabled = true; // 덱 버튼 사용 가능
         init();
         yield return new WaitForSecondsRealtime(0.3f);
         StartCoroutine(autoDrawCard(3));
+        buttonClickStatus = true;
     }
 
     public IEnumerator organize()
@@ -84,6 +94,7 @@ public class GameManager : MonoBehaviour
             {
                 if (availableCardSlots[i] == true)
                 {
+                    audioManager.draw();
                     //Debug.Log($"{i + 1} 번째 카드 드로우!");
                     randCard.gameObject.SetActive(true);
                     randCard.handIndex = i;
@@ -129,18 +140,20 @@ public class GameManager : MonoBehaviour
     public void updateHand(Hand hand)
     {
         textManager.handName.text = hand.HandName;
-        textManager.chip.text = (hand.Chip).ToString();
-        textManager.multiple.text = (hand.Multiple).ToString();
+        textManager.chip.text = (float.Parse(textManager.chip.text) + hand.Chip).ToString();
+        textManager.multiple.text = (float.Parse(textManager.multiple.text) + hand.Multiple).ToString();
     }
 
-    public void addChip(string name)
+    public void addChip(int c)
     {
-        int c = int.Parse(name.Split("-")[0]);
+        // 강화카드에 대한 것도 적용해야한다.
+        audioManager.chip();
         textManager.chip.text = (float.Parse(textManager.chip.text) + c).ToString();
     }
 
     public void addMultiple(int m)
     {
+        audioManager.chip();
         textManager.multiple.text = (float.Parse(textManager.multiple.text) + m).ToString();
     }
 
@@ -150,8 +163,8 @@ public class GameManager : MonoBehaviour
         textManager.handName.text = "";
         textManager.chip.text = "0";
         textManager.multiple.text = "0";
-        textManager.handCount.text = "3";
-        textManager.discardCount.text = "4";
+        textManager.handCount.text = "30";
+        textManager.discardCount.text = "40";
         currentDeck.all();
     }
 
@@ -164,7 +177,11 @@ public class GameManager : MonoBehaviour
 
     public void handPlay() // 핸드플레이 버튼
     {
-        StartCoroutine(handPlayCoroutine());
+        if (buttonClickStatus)
+        {
+            StartCoroutine(handPlayCoroutine());
+            buttonClickStatus = false;
+        }
     }
 
     public IEnumerator handPlayCoroutine()
@@ -185,32 +202,37 @@ public class GameManager : MonoBehaviour
             }
             method = handPlayProcess(handPlayCount);
             StartCoroutine(method);
+            TextManager.instance.upStack(textManager.handName.text); // 족보 횟수 증가
             textManager.handCount.text = (count - 1).ToString();
         }
-        hand.Clear();
     }
 
     public void discard() // 버리기 버튼
     {
-        int count = int.Parse(textManager.discardCount.text);
-        if (count > 0)
+        if (buttonClickStatus)
         {
-            int discardCount = 0;
-            for (int i = cardInSlot.Count - 1; i >= 0; i--)
+            int count = int.Parse(textManager.discardCount.text);
+            if (count > 0)
             {
-                if (cardInSlot[i].hasSelected)
+                int discardCount = 0;
+                for (int i = cardInSlot.Count - 1; i >= 0; i--)
                 {
-                    //Debug.Log($"{i + 1} 번째 카드 선택");
-                    cardInSlot[i].end();
-                    cardInSlot.RemoveAt(i);
-                    discardCount++;
+                    if (cardInSlot[i].hasSelected)
+                    {
+                        //Debug.Log($"{i + 1} 번째 카드 선택");
+                        cardInSlot[i].end();
+                        cardInSlot.RemoveAt(i);
+                        discardCount++;
+                    }
                 }
+                audioManager.discard();
+                textManager.discardCount.text = (count - 1).ToString();
+                StartCoroutine(autoDrawCard(discardCount));
             }
-            audioManager.discard();
-            textManager.discardCount.text = (count - 1).ToString();
-            StartCoroutine(autoDrawCard(discardCount));
+            hand.Clear();
+            buttonClickStatus = false;
         }
-        hand.Clear();
+
     }
 
     IEnumerator handPlayProcess(int count)
@@ -226,18 +248,27 @@ public class GameManager : MonoBehaviour
                     yield return new WaitForSecondsRealtime(0.02f);
                 }
 
-                GameObject sprite = cardInSlot[i].getSpriteObject(parent);
+                GameObject sprite = cardInSlot[i].getSpriteObject(number);
                 sprite.SetActive(true);
-                audioManager.chip();
                 sprite.transform.position = cardInSlot[i].transform.position;
-                addChip(cardInSlot[i].getSpriteName());
+                string cardName = cardInSlot[i].getSpriteName(); // 핸드플레이할 때 점수 획득 과정
+                addChip(cardName != "empty" ? int.Parse(cardName.Split("-")[0]) : 0);
 
                 //Debug.Log($"{i + 1} 번째 카드 처리중");
-                yield return new WaitForSecondsRealtime(0.5f);
+                yield return new WaitForSecondsRealtime(0.4f);
                 sprite.SetActive(false);
-                yield return new WaitForSecondsRealtime(0.15f);
+                yield return new WaitForSecondsRealtime(0.3f);
+
+                yield return StartCoroutine(upgradeCheck(cardName, cardInSlot[i].transform.position)); // 강화카드 적용
+
             }
         }
+        yield return StartCoroutine(emptyCard());
+        // 여기까지가 핸드플레이에 대한 점수 적용(강화 카드 포함)
+        // 여기서부터 서비스패에 대해 효과 적용
+        yield return StartCoroutine(applyService());
+        // 모든 카드 적용 끝
+        hand.Clear();
         yield return new WaitForSecondsRealtime(0.3f);
         yield return StartCoroutine(addScore());
         for (int i = cardInSlot.Count - 1; i >= 0; i--)
@@ -250,6 +281,99 @@ public class GameManager : MonoBehaviour
         }
         audioManager.discard();
         StartCoroutine(autoDrawCard(count));
+    }
+
+    public IEnumerator emptyCard()
+    {
+        bool status = false; // empty 존재 확인
+        for (int i = 0; i < 3; i++)
+        {
+            if (deck.Count > 0 && !availableCardSlots[i] && cardInSlot[i].getSpriteName() == "empty")
+            {
+                status = true;
+                break;
+            }
+        }
+
+        if (!status) // 패에 없으면 덱 확인
+        {
+            if (deck.Find(card => card.GetComponent<SpriteRenderer>().sprite.name == "empty") != null)
+                status = true;
+        }
+
+        if (status)
+        {
+            GameObject sprite = number.transform.GetChild(13).gameObject;
+            sprite.SetActive(true);
+            addChip(30);
+            yield return new WaitForSecondsRealtime(0.4f);
+            sprite.SetActive(false);
+            yield return new WaitForSecondsRealtime(0.3f);
+        }
+    }
+
+    public IEnumerator upgradeCheck(string cardName, Vector3 slot)
+    {
+        char c = cardName[^1];
+        int index = 0;
+        if (c == 's')
+        {
+            index = 11;
+        }
+        else if (c == 'g')
+        {
+            index = 12;
+        }
+
+        if (index != 0)
+        {
+            GameObject sprite = number.transform.GetChild(index).gameObject;
+            sprite.SetActive(true);
+            sprite.transform.position = slot - new Vector3(0.7f, 0, 0);
+            if (index == 11)
+            {
+                addChip(10);
+            }
+            else if (index == 12)
+            {
+                addMultiple(1);
+            }
+            yield return new WaitForSecondsRealtime(0.4f);
+            sprite.SetActive(false);
+            yield return new WaitForSecondsRealtime(0.3f);
+        }
+        yield return null;
+    }
+
+    IEnumerator applyService()
+    {
+        List<Image> serviceList = serviceDeck.FindAll(img => img.sprite.name != "-1");
+        foreach (Image img in serviceList)
+        {
+            etcCardEffect effect = serviceAndUpgrade.checkService(hand, img.sprite.name);
+            showServiceText showText = img.GetComponent<showServiceText>();
+            if (showText.setText(effect))
+            {
+                showText.show();
+                effectProcess(effect);
+                yield return new WaitForSecondsRealtime(0.4f);
+                showText.close();
+                yield return new WaitForSecondsRealtime(0.3f);
+            }
+        }
+    }
+
+    void effectProcess(etcCardEffect effect)
+    {
+        if (effect.Chip != 0)
+        {
+            addChip(effect.Chip);
+        }
+
+        if (effect.Multiple != 0)
+        {
+            addMultiple(effect.Multiple);
+        }
     }
 
     IEnumerator addScore()
@@ -303,9 +427,10 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.3f);
         for (int i = 0; i < count; i++)
         {
-            audioManager.draw();
             DrawCard();
             yield return new WaitForSecondsRealtime(0.2f);
         }
+
+        buttonClickStatus = true;
     }
 }

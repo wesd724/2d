@@ -1,16 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class readyManager : MonoBehaviour
 {
+    public TextMeshProUGUI rerollPrice;
     public upgradeList upgradeList;
     public serviceList serviceList;
     public changeDeckList changeDeckList;
 
     public void reroll()
     {
-        StartCoroutine(re());
+        int cash = int.Parse(TextManager.instance.cash.text);
+        int reroll = int.Parse(rerollPrice.text);
+        if(cash >= reroll)
+        {
+            TextManager.instance.cash.text = (cash - reroll).ToString();
+            rerollPrice.text = (reroll + 1).ToString();
+            StartCoroutine(re());
+        }
     }
 
     IEnumerator re()
@@ -34,6 +43,7 @@ public class readyManager : MonoBehaviour
     
     public void showBack()
     {
+        rerollPrice.text = "5";
         changeDeckList.back();
         upgradeList.back();
         serviceList.back();

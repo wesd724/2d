@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using UnityEngine.EventSystems;
+using TMPro;
 
 public class consumeCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
 {
@@ -12,6 +13,7 @@ public class consumeCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     Vector2 origin;
 
     public GameObject cash; // hover cash
+    TextMeshProUGUI cashPrice; // 가격
     public GameObject show; // 선택했을 때 교환 화면을 보여주기 위한 오브젝트
     public Image select; // 선택한 강화 카드
     public Image[] chooseCardInDeck; // 덱에 있는 카드 5장 보여주기
@@ -27,6 +29,7 @@ public class consumeCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         image = GetComponent<Image>();
         pos = GetComponent<RectTransform>();
         origin = pos.sizeDelta;
+        cashPrice = cash.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
     }
 
     //void setChooseCard()
@@ -61,7 +64,7 @@ public class consumeCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         image.enabled = false; // 원래 UI에 있는 강화카드 끄기
         foreach (Image img in chooseCardInDeck)
         {
-            img.GetComponent<changeMyCard>().selectCard(image, select.gameObject);
+            img.GetComponent<changeMyCard>().selectCard(image, select.gameObject, cashPrice);
         }
     }
 

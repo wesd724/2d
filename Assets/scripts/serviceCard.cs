@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using UnityEngine.EventSystems;
+using TMPro;
 
 public class serviceCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
 {
@@ -12,6 +13,7 @@ public class serviceCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     Vector2 origin;
 
     public GameObject cash; // hover cash
+    TextMeshProUGUI cashPrice; // 가격
     public GameObject show; // 선택했을 때 교환 화면을 보여주기 위한 오브젝트
     public Image select; // 선택한 강화 카드
     public Image[] chooseCardInDeck; // 덱에 있는 카드 5장 보여주기
@@ -28,6 +30,7 @@ public class serviceCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         origin = pos.sizeDelta;
         selectPos = select.GetComponent<RectTransform>();
         selectOrigin = selectPos.anchoredPosition;
+        cashPrice = cash.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
     }
 
     public void OnPointerExit(PointerEventData eventData)
@@ -55,7 +58,7 @@ public class serviceCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         image.enabled = false; // 원래 UI에 있는 강화카드 끄기
         foreach (Image img in chooseCardInDeck)
         {
-            img.GetComponent<selectServiceCard>().selectCard(image, select.gameObject, selectOrigin);
+            img.GetComponent<selectServiceCard>().selectCard(image, select.gameObject, selectOrigin, cashPrice);
         }
     }
 

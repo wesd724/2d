@@ -71,8 +71,11 @@ public class jokbo
         {
             return new Hand("¼¼·ú", jokboList["¼¼·ú"]);
         }
-
-        int sum = hand.Sum(x => int.Parse(x[0].ToString()));
+        if (hand.Find(x => x == "empty") != null)
+        {
+            return new Hand("²ý", jokboList["²ý"]);
+        }
+        int sum = hand.Sum(x => int.Parse(x.Split("-")[0]));
         string extra = sum.ToString()[^1].ToString();
 
         return new Hand("²ý", jokboList["²ý"]);

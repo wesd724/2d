@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using TMPro;
 
 public class selectServiceCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
 {
@@ -25,6 +26,8 @@ public class selectServiceCard : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     public Button button; // 5장 버튼
     public RectTransform[] posList; // 5장 덱들의 좌표
+
+    string cashPriceText; // 가격을 가져오기
 
     void OnEnable()
     {
@@ -99,13 +102,15 @@ public class selectServiceCard : MonoBehaviour, IPointerEnterHandler, IPointerEx
         button.gameObject.SetActive(status);
     }
 
-    public void selectCard(Image original, GameObject obj, Vector2 selectOrigin)
+    public void selectCard(Image original, GameObject obj, Vector2 selectOrigin, TextMeshProUGUI cashText)
     {
         this.original = original;
         Enable(true);
         select = obj;
         selectPos = select.GetComponent<RectTransform>();
         this.selectOrigin = selectOrigin; // 원래 위치(이동한 위치가 아니라 원래 UI 위에 위치)
+
+        cashPriceText = cashText.text;
 
         //foreach (int i in numbers) Debug.Log(i);
     }
@@ -117,9 +122,24 @@ public class selectServiceCard : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     void changeCard()
     {
-        posList[index].sizeDelta = origin;
-        StartCoroutine(changeAnimation(selectPos.anchoredPosition, new Vector2(-150f + (index * 86f), -296f), 0.2f));
-        button.gameObject.SetActive(false);
+        if(buy())
+        {
+            posList[index].sizeDelta = origin;
+            StartCoroutine(changeAnimation(selectPos.anchoredPosition, new Vector2(-150f + (index * 86f), -296f), 0.2f));
+            button.gameObject.SetActive(false);
+        }
+    }
+
+    bool buy()
+    {
+        int cash = int.Parse(TextManager.instance.cash.text);
+        int price = int.Parse(cashPriceText[1..]);
+        if(cash >= price)
+        {
+            TextManager.instance.cash.text = (cash - price).ToString();
+            return true;
+        }
+        return false;
     }
 
     IEnumerator changeAnimation(Vector2 start, Vector2 target, float endTime)
@@ -135,7 +155,7 @@ public class selectServiceCard : MonoBehaviour, IPointerEnterHandler, IPointerEx
         selectPos.anchoredPosition = target; // 미세한 오차를 제거
         image.sprite = select.GetComponent<Image>().sprite;
         //GameManager.instance.deck[numbers[index]].GetComponent<SpriteRenderer>().sprite = image.sprite;
-        GameManager.instance.serviceDeck[index] = image.sprite.name; // 사용할 서비스 카드로 등록
+        GameManager.instance.serviceDeck[index] = image; // 사용할 서비스 카드로 등록
 
         select.SetActive(false); // 선택한 강화카드 없앰
 
