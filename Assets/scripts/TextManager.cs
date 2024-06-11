@@ -8,6 +8,7 @@ public class TextManager : MonoBehaviour
 {
     public static TextManager instance = null;
 
+    public TextMeshProUGUI level;
     public TextMeshProUGUI goal;
     public TextMeshProUGUI score;
     public TextMeshProUGUI handName;
@@ -25,7 +26,7 @@ public class TextManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(this.gameObject);
+            //DontDestroyOnLoad(this.gameObject);
         }
         else
         {
@@ -35,19 +36,43 @@ public class TextManager : MonoBehaviour
     }
     void Start()
     {
-        goal.text = "10";
+        goal.text = "300";
         score.text = "0";
         handName.text = "";
         chip.text = "0";
         multiple.text = "0";
         handCount.text = "3";
         discardCount.text = "4";
-        cash.text = "50";
+        cash.text = "0";
+        level.text = $"·¹º§{GameManager.wave}";
     }
 
     public void upStack(string jokboName)
     {
         int index = Array.IndexOf(jokbo, jokboName);
         jokbostack[index].text = (int.Parse(jokbostack[index].text) + 1).ToString();
+    }
+
+    public bool stackCheck()
+    {
+        foreach(TextMeshProUGUI count in jokbostack)
+        {
+            if (int.Parse(count.text) < 2)
+                return false;
+        }
+        return true;
+    }
+
+    public void test()
+    {
+        goal.text = "10";
+        cash.text = "500";
+        handCount.text = "30";
+        discardCount.text = "40";
+        GameManager.discardStack = 15;
+        foreach(var jk in jokbostack)
+        {
+            jk.text = "5";
+        }
     }
 }

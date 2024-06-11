@@ -24,14 +24,14 @@ public class jokbo
         {
             return new Hand("", new List<float> { 0, 0 });
         }
-
-        if (hand.Contains("3-1") && hand.Contains("8-1"))
+        
+        if (hand.Any(x => x.Contains("3-1")) && hand.Any(x => x.Contains("8-1")))
         {
             return new("»ïÆÈ±¤¶¯", jokboList["»ïÆÈ±¤¶¯"]);
         }
 
-        if (hand.Contains("1-1") && hand.Contains("3-1") ||
-            hand.Contains("1-1") && hand.Contains("8-1"))
+        if (hand.Any(x => x.Contains("1-1")) && hand.Any(x => x.Contains("3-1")) ||
+            hand.Any(x => x.Contains("1-1")) && hand.Any(x => x.Contains("8-1")))
         {
             return new Hand("±¤¶¯", jokboList["±¤¶¯"]);
         }

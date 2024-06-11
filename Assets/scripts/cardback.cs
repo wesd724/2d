@@ -22,6 +22,7 @@ public class cardback : MonoBehaviour
 
     public void OnMouseDown()
     {
+        GameManager.instance.watchDeck(false);
         watchDeck.SetActive(true);
         deck.use();
         StartCoroutine(ui.moveUp(76));

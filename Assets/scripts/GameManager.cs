@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance = null; // 아직은 사용 안함.
     TextManager textManager;
-    AudioManager audioManager;
+
     UiManager uiManager;
 
     public List<Card> deck = new List<Card>();
@@ -23,13 +23,20 @@ public class GameManager : MonoBehaviour
 
     public List<Card> useCard = new List<Card>(); // 사용한 카드(패 포함)
 
-    public BoxCollider2D deckPostion; // 덱 위치
+    public BoxCollider2D deckButton; // 덱 보기 버튼
     public deck currentDeck; // 현재 보유 덱
 
     bool buttonClickStatus = false; // 버튼 한번만 클릭하게 설정
 
     IEnumerator method = null;
 
+    // 전역
+    public static bool d1 = false;
+    public static int discardStack = 0; // 버리기카드 누적
+    public static bool d2 = false;
+    public static int discardStack_s = 0; // 쓰레기통의 왕 카드 누적
+    public static int wave = 0; // 한 웨이브당 3라운드 => 2,  round 1 설정
+    public static int round = -1;
 
     GameObject number; // 점수 스프라이트 부모 오브젝트
 
@@ -38,7 +45,7 @@ public class GameManager : MonoBehaviour
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(this.gameObject);
+            //DontDestroyOnLoad(this.gameObject);
         }
         else
         {
@@ -50,21 +57,19 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         number = GameObject.Find("numberSprite");
-        audioManager = GameObject.Find("AudioManager").GetComponent<AudioManager>();
         uiManager = GameObject.Find("UiManager").GetComponent<UiManager>();
         textManager = TextManager.instance;
-        //StartCoroutine(startGame());
+        textManager.test(); // 테스트 함수
+        serviceAndUpgrade.initS();
+        updateServiceContent();
+        StartCoroutine(startGame());
 
-        uiManager.completeWindowOpen();
+        //uiManager.completeWindowOpen();
     }
 
     public IEnumerator startGame()
     {
-        serviceDeck.ForEach(img =>
-        {
-            img.GetComponent<cardInfo>().judge(img.sprite.name);
-        });
-        deckPostion.enabled = true; // 덱 버튼 사용 가능
+        deckButton.enabled = true; // 덱 버튼 사용 가능
         init();
         yield return new WaitForSecondsRealtime(0.3f);
         StartCoroutine(autoDrawCard(3));
@@ -75,9 +80,9 @@ public class GameManager : MonoBehaviour
     {
         foreach (Card card in useCard)
         {
-            audioManager.restart();
-            yield return StartCoroutine(card.drawAnim(card.transform.position, deck[0].transform.position, 0.15f));
+            AudioManager.instance.restart();
             card.init();
+            yield return StartCoroutine(card.drawAnim(card.transform.position, deck[0].transform.position, 0.15f));
             deck.Add(card);
             card.gameObject.SetActive(false);
         }
@@ -94,7 +99,7 @@ public class GameManager : MonoBehaviour
             {
                 if (availableCardSlots[i] == true)
                 {
-                    audioManager.draw();
+                    AudioManager.instance.draw();
                     //Debug.Log($"{i + 1} 번째 카드 드로우!");
                     randCard.gameObject.SetActive(true);
                     randCard.handIndex = i;
@@ -140,20 +145,20 @@ public class GameManager : MonoBehaviour
     public void updateHand(Hand hand)
     {
         textManager.handName.text = hand.HandName;
-        textManager.chip.text = (float.Parse(textManager.chip.text) + hand.Chip).ToString();
-        textManager.multiple.text = (float.Parse(textManager.multiple.text) + hand.Multiple).ToString();
+        textManager.chip.text = (hand.Chip).ToString();
+        textManager.multiple.text = (hand.Multiple).ToString();
     }
 
     public void addChip(int c)
     {
         // 강화카드에 대한 것도 적용해야한다.
-        audioManager.chip();
+        AudioManager.instance.chip();
         textManager.chip.text = (float.Parse(textManager.chip.text) + c).ToString();
     }
 
     public void addMultiple(int m)
     {
-        audioManager.chip();
+        AudioManager.instance.chip();
         textManager.multiple.text = (float.Parse(textManager.multiple.text) + m).ToString();
     }
 
@@ -163,8 +168,8 @@ public class GameManager : MonoBehaviour
         textManager.handName.text = "";
         textManager.chip.text = "0";
         textManager.multiple.text = "0";
-        textManager.handCount.text = "30";
-        textManager.discardCount.text = "40";
+        textManager.handCount.text = "3";
+        textManager.discardCount.text = "4";
         currentDeck.all();
     }
 
@@ -177,10 +182,11 @@ public class GameManager : MonoBehaviour
 
     public void handPlay() // 핸드플레이 버튼
     {
-        if (buttonClickStatus)
+        if (buttonClickStatus && hand.Count > 0)
         {
-            StartCoroutine(handPlayCoroutine());
             buttonClickStatus = false;
+            updateServiceContent();
+            StartCoroutine(handPlayCoroutine());
         }
     }
 
@@ -195,7 +201,7 @@ public class GameManager : MonoBehaviour
                 if (cardInSlot[i].hasSelected)
                 {
                     //Debug.Log($"{i + 1} 번째 카드 선택");
-                    audioManager.handPlay();
+                    AudioManager.instance.handPlay();
                     yield return StartCoroutine(cardInSlot[i].selectCard());
                     handPlayCount++;
                 }
@@ -209,12 +215,15 @@ public class GameManager : MonoBehaviour
 
     public void discard() // 버리기 버튼
     {
-        if (buttonClickStatus)
+        if (buttonClickStatus && hand.Count > 0)
         {
             int count = int.Parse(textManager.discardCount.text);
             if (count > 0)
             {
+                discardService();
+                updateServiceContent();
                 int discardCount = 0;
+                AudioManager.instance.discard();
                 for (int i = cardInSlot.Count - 1; i >= 0; i--)
                 {
                     if (cardInSlot[i].hasSelected)
@@ -225,14 +234,19 @@ public class GameManager : MonoBehaviour
                         discardCount++;
                     }
                 }
-                audioManager.discard();
                 textManager.discardCount.text = (count - 1).ToString();
+                buttonClickStatus = false;
                 StartCoroutine(autoDrawCard(discardCount));
             }
             hand.Clear();
-            buttonClickStatus = false;
         }
 
+    }
+
+    void discardService()
+    {
+        if (d1) discardStack += 1;
+        if (d2) discardStack_s += 1;
     }
 
     IEnumerator handPlayProcess(int count)
@@ -263,7 +277,7 @@ public class GameManager : MonoBehaviour
 
             }
         }
-        yield return StartCoroutine(emptyCard());
+        //yield return StartCoroutine(emptyCard());
         // 여기까지가 핸드플레이에 대한 점수 적용(강화 카드 포함)
         // 여기서부터 서비스패에 대해 효과 적용
         yield return StartCoroutine(applyService());
@@ -279,7 +293,7 @@ public class GameManager : MonoBehaviour
                 cardInSlot.RemoveAt(i);
             }
         }
-        audioManager.discard();
+        AudioManager.instance.discard();
         StartCoroutine(autoDrawCard(count));
     }
 
@@ -315,6 +329,7 @@ public class GameManager : MonoBehaviour
     public IEnumerator upgradeCheck(string cardName, Vector3 slot)
     {
         char c = cardName[^1];
+        Debug.Log(c);
         int index = 0;
         if (c == 's')
         {
@@ -323,6 +338,10 @@ public class GameManager : MonoBehaviour
         else if (c == 'g')
         {
             index = 12;
+        }
+        else if (c == 'y')
+        {
+            index = 13;
         }
 
         if (index != 0)
@@ -338,16 +357,20 @@ public class GameManager : MonoBehaviour
             {
                 addMultiple(1);
             }
+            else if (index == 13)
+            {
+                addChip(30);
+            }
             yield return new WaitForSecondsRealtime(0.4f);
             sprite.SetActive(false);
             yield return new WaitForSecondsRealtime(0.3f);
         }
-        yield return null;
+        yield return new WaitForSecondsRealtime(0.05f);
     }
 
     IEnumerator applyService()
     {
-        List<Image> serviceList = serviceDeck.FindAll(img => img.sprite.name != "-1");
+        List<Image> serviceList = serviceDeck.FindAll(img => img.sprite.name != "-1" && img.sprite.name != "ㅈㅂㅁㅅㅌ" && img.sprite.name != "ㅆㅇ" && img.sprite.name != "ㄸㄱㅇ");
         foreach (Image img in serviceList)
         {
             etcCardEffect effect = serviceAndUpgrade.checkService(hand, img.sprite.name);
@@ -361,6 +384,41 @@ public class GameManager : MonoBehaviour
                 yield return new WaitForSecondsRealtime(0.3f);
             }
         }
+        // 일반 서비스패
+
+        List<Image> serviceList2 = serviceDeck.FindAll(img => img.sprite.name == "ㅈㅂㅁㅅㅌ" || img.sprite.name == "ㅆㅇ" || img.sprite.name == "ㄸㄱㅇ");
+        foreach (Image img in serviceList2)
+        {
+            etcCardEffect effect = serviceAndUpgrade.checkService(hand, img.sprite.name);
+            showServiceText showText = img.GetComponent<showServiceText>();
+            if (showText.setText2(effect))
+            {
+                showText.show();
+                effectProcess2(effect);
+                yield return new WaitForSecondsRealtime(0.4f);
+                showText.close();
+                yield return new WaitForSecondsRealtime(0.3f);
+            }
+        }
+        //전설 서비스패
+        yield return new WaitForSecondsRealtime(0.05f);
+    }
+
+    public void updateServiceContent()
+    {
+        serviceAndUpgrade.initU();
+        serviceDeck.ForEach(img =>
+        {
+            string name = img.sprite.name;
+            if(name == "ㅂㄹㄱ")
+            {
+                d1 = true;
+            } else if(name == "ㅆㅇ")
+            {
+                d2 = true;
+            }
+            img.GetComponent<cardInfo>().judge(img.sprite.name);
+        });
     }
 
     void effectProcess(etcCardEffect effect)
@@ -376,9 +434,15 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    void effectProcess2(etcCardEffect effect)
+    {
+        AudioManager.instance.legend();
+        textManager.multiple.text = (float.Parse(textManager.multiple.text) * effect.Multiple).ToString();
+    }
+
     IEnumerator addScore()
     {
-        audioManager.score();
+        AudioManager.instance.score();
 
         float current = float.Parse(textManager.score.text);
         float target = current + float.Parse(textManager.chip.text) * float.Parse(textManager.multiple.text);
@@ -392,7 +456,7 @@ public class GameManager : MonoBehaviour
             textManager.score.text = ((int)current).ToString();
             yield return null;
         }
-        textManager.score.text = target.ToString();
+        textManager.score.text = ((int)target).ToString();
         yield return StartCoroutine(check((int)target));
     }
 
@@ -403,11 +467,38 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(0.8f);
             nextTurn();
             StopCoroutine(method);
-            deckPostion.enabled = false;
+            deckButton.enabled = false;
             yield return StartCoroutine(clean());
-            uiManager.completeWindowOpen();
+            if (wave == 2 && round == 2)
+            {
+                uiManager.endWindowOpen();
+            }
+            else
+            {
+                checkRound();
+                uiManager.completeWindowOpen();
+            }
+        }
+        else if (int.Parse(textManager.handCount.text) <= 0)
+        {
+            StopCoroutine(method);
+            yield return StartCoroutine(clean());
+            uiManager.failWindowOpen();
         }
         yield return null;
+    }
+
+    void checkRound()
+    {
+        if (round < 2)
+        {
+            round += 1;
+        }
+        else
+        {
+            wave += 1;
+            round = 0;
+        }
     }
 
     IEnumerator clean()
@@ -416,7 +507,7 @@ public class GameManager : MonoBehaviour
         {
             cardInSlot[i].end();
         }
-        audioManager.discard();
+        AudioManager.instance.discard();
         cardInSlot.Clear();
         yield return new WaitForSecondsRealtime(0.8f);
     }
@@ -432,5 +523,13 @@ public class GameManager : MonoBehaviour
         }
 
         buttonClickStatus = true;
+    }
+
+    public void watchDeck(bool status)
+    {
+        foreach(Card card in cardInSlot)
+        {
+            card.GetComponent<BoxCollider2D>().enabled = status;
+        }
     }
 }

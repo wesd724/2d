@@ -16,10 +16,10 @@ public class changeDeckList : MonoBehaviour
     public IEnumerator expand(float current, float target, float duration)
     {
         shopdeck.setting();
-        yield return new WaitForSecondsRealtime(0.3f);
+        yield return new WaitForSecondsRealtime(0.15f);
         float start = 0;
 
-
+        AudioManager.instance.spread();
         while (start < duration)
         {
             hlg.spacing = Mathf.Lerp(current, target, start / duration);
@@ -33,7 +33,7 @@ public class changeDeckList : MonoBehaviour
     public IEnumerator collect(float current, float target, float duration)
     {
         shopdeck.back();
-        yield return new WaitForSecondsRealtime(0.3f);
+        yield return new WaitForSecondsRealtime(0.15f);
         float start = 0;
 
         while (start < duration)

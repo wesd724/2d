@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class UiManager : MonoBehaviour
 {
@@ -13,12 +14,18 @@ public class UiManager : MonoBehaviour
     public moveUI roundSelect;
     public moveUI roundExplain;
 
+    public moveUI failWindow;
+    public moveUI failExplain;
+
+    public moveUI endWindow;
+    public moveUI endExplain;
+
     public readyManager readyManager;
 
     public void completeWindowOpen() // 목표 달성 완료 창
     {
         string goal = TextManager.instance.goal.text;
-        transform.GetChild(2).GetComponent<completeManager>().open(goal, int.Parse(goal) / 10);
+        transform.GetChild(2).GetComponent<completeManager>().open(goal);
         StartCoroutine(completeExplain.explainDown());
         StartCoroutine(completeWindow.moveUp(-175));
     }
@@ -31,8 +38,8 @@ public class UiManager : MonoBehaviour
 
     IEnumerator organize()
     {
-        StartCoroutine(completeExplain.moveUp(765));
-        yield return StartCoroutine(completeWindow.moveDown(-915));
+        StartCoroutine(completeExplain.moveUp(770));
+        yield return StartCoroutine(completeWindow.moveDown(-1015));
         yield return StartCoroutine(GameManager.instance.organize());
         StartCoroutine(readyWindowAnimation());
     }
@@ -43,7 +50,7 @@ public class UiManager : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.3f);
         StartCoroutine(readyExplain.explainDown());
         readyManager.showBack();
-        yield return StartCoroutine(readyWindow.moveUp(190));
+        yield return StartCoroutine(readyWindow.moveUp(185));
         yield return new WaitForSecondsRealtime(0.05f);
         StartCoroutine(readyManager.show());
     }
@@ -51,27 +58,88 @@ public class UiManager : MonoBehaviour
     public void roundSelectOpen() // 라운드 선택 창
     {
         roundSelect.transform.parent.gameObject.SetActive(true);
-        StartCoroutine(readyExplain.moveUp(765));
+        StartCoroutine(readyExplain.moveUp(770));
         StartCoroutine(roundSelectAnimation());
     }
 
     IEnumerator roundSelectAnimation()
     {
-        yield return StartCoroutine(readyWindow.moveDown(-915));
+        yield return StartCoroutine(readyWindow.moveDown(-1015));
         yield return new WaitForSecondsRealtime(0.3f);
         StartCoroutine(roundExplain.explainDown());
-        StartCoroutine(roundSelect.moveUp(-185));
+        StartCoroutine(roundSelect.moveUp(-175));
     }
 
     public void select()
     {
-        StartCoroutine(roundExplain.moveUp(765));
+        StartCoroutine(roundExplain.moveUp(770));
         StartCoroutine(selectAnimation());
+        StartCoroutine(GameManager.instance.startGame());
     }
+
     IEnumerator selectAnimation()
     {
-        yield return StartCoroutine(roundSelect.moveDown(-915));
-        yield return new WaitForSecondsRealtime(0.3f);
+        yield return StartCoroutine(roundSelect.moveDown(-1015));
+    }
+
+    public void failWindowOpen() // 모든 라운드 완료 창
+    {
+        failWindow.transform.parent.gameObject.SetActive(true);
+        StartCoroutine(failExplain.explainDown());
+        StartCoroutine(failWindow.moveUp(-175));
+    }
+
+    public void restart()
+    {
+        StartCoroutine(re());
+    }
+
+    IEnumerator re()
+    {
+        StartCoroutine(failExplain.moveUp(770));
+        yield return StartCoroutine(failWindow.moveDown(-1015));
+        gameInit();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    void gameInit()
+    {
+        GameManager.instance = null;
+        GameManager.d1 = false;
+        GameManager.discardStack = 0; // 버리기카드 누적
+        GameManager.d2 = false;
+        GameManager.discardStack_s = 0; // 쓰레기통의 왕 카드 누적
+        GameManager.round = -1;
+        GameManager.wave = 0;
+        TextManager.instance = null;
+        serviceAndUpgrade.initS();
+        serviceAndUpgrade.initU();
+
+    }
+
+    public void endWindowOpen() // 끝 창
+    {
+        endWindow.transform.parent.gameObject.SetActive(true);
+        StartCoroutine(endExplain.explainDown(0));
+        StartCoroutine(endWindow.moveUp(-175));
+    }
+
+    public void restart2()
+    {
+        StartCoroutine(re2());
+    }
+
+    IEnumerator re2()
+    {
+        StartCoroutine(endExplain.moveUp(1100));
+        yield return StartCoroutine(endWindow.moveDown(-1015));
+        gameInit();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void quit() // 게임 종료
+    {
+        Application.Quit();
     }
 
 
@@ -82,16 +150,16 @@ public class UiManager : MonoBehaviour
     // 아직 고려 안함
     public void readyWindowClose()
     {
-        StartCoroutine(readyWindow.moveDown(-915));
+        StartCoroutine(readyWindow.moveDown(-1015));
     }
 
     public void roundSelectClose()
     {
-        StartCoroutine(roundSelect.moveDown(-915));
+        StartCoroutine(roundSelect.moveDown(-1015));
     }
 
     public void completeWindowClose()
     {
-        StartCoroutine(completeWindow.moveDown(-915));
+        StartCoroutine(completeWindow.moveDown(-1015));
     }
 }

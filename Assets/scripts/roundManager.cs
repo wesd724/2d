@@ -7,22 +7,48 @@ using TMPro;
 public class roundManager : MonoBehaviour
 {
     public UiManager uiManager;
-    public Button select1, select2, select3;
-    public TextMeshProUGUI goal1, goal2, goal3;
+    public TextMeshProUGUI level; // 전역에서 쓰는 wave 와 같은 의미
+    public Button[] select;
+    public TextMeshProUGUI[] goal;
 
-    void Start()
+    string[,] waves =  {
+                        {"500", "700", "1000"},
+                        {"1200", "1600", "2500"},
+                        {"3000", "6000", "12000"}
+                    };
+
+    void OnEnable()
     {
-        select1.onClick.AddListener(() => selectGoal(goal1.text));
-        select2.onClick.AddListener(() => selectGoal(goal2.text));
-        select3.onClick.AddListener(() => selectGoal(goal3.text));
+        int w = GameManager.wave;
+        int r = GameManager.round;
+        level.text = $"{w + 1}";
+        for (int i = 0; i < 3; i++)
+        {
+            int temp = i;
+            goal[i].text = waves[w, i];
+            select[i].interactable = false;
+            if (i == r)  // 해당 라운드만 선택 클릭가능 하도록 설계
+            {
+                select[i].interactable = true;
+                select[i].onClick.RemoveAllListeners();
+                select[i].onClick.AddListener(() => selectGoal(goal[temp].text));
+            }
+        }
     }
-
-    // Update is called once per frame
 
     void selectGoal(string score)
     {
         TextManager.instance.goal.text = score;
+        TextManager.instance.level.text = $"레벨{GameManager.wave + 1}";
         uiManager.select();
-        StartCoroutine(GameManager.instance.startGame());
+    }
+
+    public void newWave()
+    {
+        GameManager.wave += 1;
+        for (int i = 0; i < 3; i++)
+        {
+            select[i].interactable = true;
+        }
     }
 }

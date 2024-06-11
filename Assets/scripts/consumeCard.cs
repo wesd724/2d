@@ -53,6 +53,7 @@ public class consumeCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        AudioManager.instance.click();
         pos.sizeDelta = origin;
         cash.SetActive(false);
         //setChooseCard();

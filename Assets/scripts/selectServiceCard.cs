@@ -31,6 +31,7 @@ public class selectServiceCard : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     void OnEnable()
     {
+        button.onClick.RemoveAllListeners();
         button.onClick.AddListener(() => changeCard());
         status = true;
     }
@@ -57,6 +58,7 @@ public class selectServiceCard : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        AudioManager.instance.click();
         setButton(true);
         for (int i = 0; i < 5; i++)
         {
@@ -122,8 +124,9 @@ public class selectServiceCard : MonoBehaviour, IPointerEnterHandler, IPointerEx
 
     void changeCard()
     {
-        if(buy())
+        if (buy())
         {
+            AudioManager.instance.buy();
             posList[index].sizeDelta = origin;
             StartCoroutine(changeAnimation(selectPos.anchoredPosition, new Vector2(-150f + (index * 86f), -296f), 0.2f));
             button.gameObject.SetActive(false);
@@ -134,7 +137,7 @@ public class selectServiceCard : MonoBehaviour, IPointerEnterHandler, IPointerEx
     {
         int cash = int.Parse(TextManager.instance.cash.text);
         int price = int.Parse(cashPriceText[1..]);
-        if(cash >= price)
+        if (cash >= price)
         {
             TextManager.instance.cash.text = (cash - price).ToString();
             return true;

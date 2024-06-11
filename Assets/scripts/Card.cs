@@ -6,8 +6,7 @@ public class Card : MonoBehaviour
 {
     public bool hasSelected = false;
     public int handIndex;
-    private GameManager gm;
-    private AudioManager am;
+    public GameManager gm;
     private bool clicked = false;
     private bool mouseOver = false;
 
@@ -15,28 +14,27 @@ public class Card : MonoBehaviour
 
     private Sprite sprite;
 
-    public void Start()
+    void OnEnable()
     {
-        gm = FindObjectOfType<GameManager>();
-        am = FindObjectOfType<AudioManager>();
-        sprite = gameObject.GetComponent<SpriteRenderer>().sprite;
+        
     }
+
     public void OnMouseDown()
     {
         if (!hasSelected && gm.handCount() < 2)
         {
             transform.position += Vector3.up * 0.6f;
-            am.select();
+            AudioManager.instance.select();
             hasSelected = true;
             clicked = true;
-            gm.addHand(sprite.name);
+            gm.addHand(GetComponent<SpriteRenderer>().sprite.name);
         }
         else if (clicked)
         {
             transform.position += Vector3.down * 0.6f;
             hasSelected = false;
             clicked = false;
-            gm.cancelHand(sprite.name);
+            gm.cancelHand(GetComponent<SpriteRenderer>().sprite.name);
         }
 
         Hand hand = jokbo.handCheck(gm.getHand());
@@ -71,7 +69,7 @@ public class Card : MonoBehaviour
 
     public string getSpriteName()
     {
-        return sprite.name;
+        return GetComponent<SpriteRenderer>().sprite.name;
     }
 
     public IEnumerator selectCard()
@@ -93,9 +91,9 @@ public class Card : MonoBehaviour
 
     public GameObject getSpriteObject(GameObject parent)
     {
-        if(sprite.name != "empty")
+        if(GetComponent<SpriteRenderer>().sprite.name != "empty")
         {
-            string name = sprite.name.Split("-")[0];
+            string name = GetComponent<SpriteRenderer>().sprite.name.Split("-")[0];
             return parent.transform.GetChild(int.Parse(name)).gameObject;
         }
         return parent.transform.GetChild(0).gameObject;

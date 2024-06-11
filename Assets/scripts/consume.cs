@@ -30,7 +30,7 @@ public class consume : MonoBehaviour
             images[i].enabled = true;
             images[i].sprite = sprite;
 
-            int price = check(sprite.name);
+            int price = checkPrice(sprite.name);
             texts[i].text = $"${price}";
             images[i].GetComponent<cardInfo>().judge(sprite.name[^2..]);
         }
@@ -45,7 +45,7 @@ public class consume : MonoBehaviour
         }
     }
 
-    public int check(string name)
+    public int checkPrice(string name)
     {
         if (name[^1] == 's' || name == "empty")
         {

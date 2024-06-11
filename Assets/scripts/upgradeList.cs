@@ -19,7 +19,7 @@ public class upgradeList : MonoBehaviour
         yield return new WaitForSecondsRealtime(0.3f);
         float start = 0;
 
-        
+        AudioManager.instance.spread();
         while (start < duration)
         {
             hlg.spacing = Mathf.Lerp(current, target, start / duration);

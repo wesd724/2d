@@ -9,36 +9,61 @@ public class service : MonoBehaviour
 {
     public Image[] images;
     public TextMeshProUGUI[] texts;
-    public GameObject serviceCardList; // 강화할 카드 목록을 가진 부모 오브젝트
+    public GameObject serviceCardList; // 서비스 카드 목록을 가진 부모 오브젝트
                                        // 이 변수에서 랜덤으로 3개를 뽑아 img1, 2, 3의 sprite 적용한다.
+    public GameObject alreadyPickList;
     public Image cardback;
 
     void OnEnable()
     {
-        
+        GameManager.instance.serviceDeck.ForEach(img =>
+        {
+            img.GetComponent<cardInfo>().setStatus(false);
+        });
+
+        List<Transform> childs = new List<Transform>();
+        foreach (Transform child in alreadyPickList.transform)
+        {
+            childs.Add(child);
+        }
+        foreach(Transform child in childs)
+        {
+            child.SetParent(null);
+            child.SetParent(serviceCardList.transform);  // 이전에 제거된 서비스 카드 목록들 복구
+        }
+        childs.Clear();
+
+        availableServiceCard();
     }
 
     public void setting()
     {
-        // 현재가지고 있는 카드 제외 코드
-        // 이 상점턴에서 나온 것들 제외
-        // hover 도 만들어야한다!
-        // hover를 세팅할때에는 모든 카드에 대해 오브젝트를 만들지 말고
-        // sprite 이름으로 맵을 검색하여 텍스트를 가져온다
-        // sprite 이름으로 이 게임에 모든 상호작용을 만드는 것이 편한거 같다.
-        int[] numbers =
-            Enumerable.Range(0, serviceCardList.transform.childCount).OrderBy(x => Random.value).Take(2).ToArray();
+        //전설급이 나올 확률은 매우 적음
+        //기본카드가 70 % 금색을 제외한 강화카드는 20 % 금색카드는 10 % 정도
 
-        for (int i = 0; i < 2; i++)
+        // 사용가능한 서비스카드
+        int take = serviceCardList.transform.childCount >= 2 ? 2 : serviceCardList.transform.childCount == 1 ? 1 : 0;
+        //List<int> numbers =
+            //Enumerable.Range(0, serviceCardList.transform.childCount).OrderBy(x => Random.value).Take(take).ToList();
+        for (int i = 0; i < take; i++)
         {
-            Transform child = serviceCardList.transform.GetChild(numbers[i]);
+            int index = Enumerable.Range(0, serviceCardList.transform.childCount).OrderBy(x => Random.value).First();
+            Transform child = serviceCardList.transform.GetChild(index);
             Sprite sprite = child.GetComponent<Image>().sprite;
             images[i].enabled = true;
             images[i].sprite = sprite;
+            child.SetParent(null); // 이미 해당 턴에서 나온 서비스 카드 제외
+            child.SetParent(alreadyPickList.transform); // 해당 턴에서 나 온 서비스카드 저장
 
-            int price = check(sprite.name);
+        }
+
+        for (int i = 0; i < 2; i++)
+        {
+            images[i].GetComponent<cardInfo>().judge(images[i].sprite.name);
+            int price = checkPrice(images[i].sprite.name);
             texts[i].text = $"${price}";
-            images[i].GetComponent<cardInfo>().judge(sprite.name);
+            if (price == -1)
+                images[i].enabled = false;
         }
     }
 
@@ -51,9 +76,29 @@ public class service : MonoBehaviour
         }
     }
 
-    public int check(string name)
+    void availableServiceCard()
     {
-        if(name.Contains("ㅈㄱ") || name == "ㅂㄹㄱ")
+        List<Transform> temp = new List<Transform>();
+        List<Image> useService = GameManager.instance.serviceDeck.FindAll(img => img.sprite.name != "-1");
+        foreach (Transform child in serviceCardList.transform) // 이미 사용중인 서비스 카드
+        {
+            Sprite sprite = child.GetComponent<Image>().sprite;
+            foreach (Image img in useService)
+            {
+                Sprite useSprite = img.sprite;
+                if (sprite.name == useSprite.name)
+                {
+                    temp.Add(child); 
+                    break;
+                }
+            }
+        }
+        temp.ForEach(child => child.SetParent(null)); // 이미 해당 턴에서 나온 서비스 카드 제외
+    }
+
+    public int checkPrice(string name)
+    {
+        if (name.Contains("ㅈㄱ") || name == "ㅂㄹㄱ")
         {
             return Random.Range(5, 7);
         }
@@ -61,6 +106,11 @@ public class service : MonoBehaviour
         {
             return Random.Range(8, 11);
         }
+        else if (name == "cardback")
+        {
+            return -1;
+        }
+
         return Random.Range(4, 7);
     }
 }

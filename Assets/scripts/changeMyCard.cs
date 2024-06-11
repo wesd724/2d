@@ -30,6 +30,7 @@ public class changeMyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     void OnEnable()
     {
+        button.onClick.RemoveAllListeners();
         button.onClick.AddListener(() => changeCard());
         status = true;
     }
@@ -56,6 +57,7 @@ public class changeMyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        AudioManager.instance.click();
         setButton(true);
         for (int i = 0; i < 5; i++)
         {
@@ -122,6 +124,7 @@ public class changeMyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
     {
         if(buy())
         {
+            AudioManager.instance.buy();
             posList[index].sizeDelta = origin;
             StartCoroutine(changeAnimation(selectPos.anchoredPosition, new Vector2(-32f + (index * 106f), -329f), 0.2f));
             button.gameObject.SetActive(false);
@@ -152,7 +155,7 @@ public class changeMyCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHan
 
         selectPos.anchoredPosition = target; // 미세한 오차를 제거
         image.sprite = select.GetComponent<Image>().sprite;
-        GameManager.instance.deck[numbers[index]].GetComponent<SpriteRenderer>().sprite = image.sprite;
+        GameManager.instance.deck[numbers[index]].GetComponent<SpriteRenderer>().sprite = select.GetComponent<Image>().sprite;
 
         select.SetActive(false); // 선택한 강화카드 없앰
 

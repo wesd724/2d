@@ -7,8 +7,9 @@ using TMPro;
 public class completeManager : MonoBehaviour
 {
     public GameObject complete;
+    public TextMeshProUGUI stage;
+
     public TextMeshProUGUI goal;
-    public TextMeshProUGUI allDiscard;
 
     public TextMeshProUGUI basicCash;
     public TextMeshProUGUI handCash;
@@ -16,17 +17,21 @@ public class completeManager : MonoBehaviour
 
     public Button cashButton;
 
-    public void open(string score, int cash)
+    public void open(string score)
     {
+        stage.text = $"stage {GameManager.round + 1}";
+        int cash = GameManager.round != 2 ? 6 : 8;
         int handCount = int.Parse(TextManager.instance.handCount.text);
         complete.SetActive(true);
         goal.text = score;
 
-        allDiscard.text = $"{(4 - int.Parse(TextManager.instance.discardCount.text)) + int.Parse(allDiscard.text)}";
+        //allDiscard.text = $"{(4 - int.Parse(TextManager.instance.discardCount.text)) + int.Parse(allDiscard.text)}";
 
         basicCash.text = $"$ {cash} È¹µæ";
         handCash.text = $"$ {handCount} È¹µæ";
         cashText.text = $"$ {cash + handCount} È¹µæ";
+
+        cashButton.onClick.RemoveAllListeners();
         cashButton.onClick.AddListener(() => getCash(cash, handCount));
     }
 

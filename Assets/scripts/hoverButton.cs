@@ -28,6 +28,7 @@ public class hoverButton : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        GameManager.instance.watchDeck(true);
         StartCoroutine(ui.moveDown(-915));
     }
 }

@@ -12,15 +12,20 @@ public class cardInfo : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     TextMeshProUGUI content;
     bool status;
 
+    void OnEnable()
+    {
+        status = false;
+    }
+
     public void judge(string cardName)
     {
         status = false;
-        if (serviceAndUpgrade.titleCotent.ContainsKey(cardName))
+        if (serviceAndUpgrade.titleContent.ContainsKey(cardName))
         {
             status = true;
             title = infoUI.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
             content = infoUI.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
-            set(serviceAndUpgrade.titleCotent[cardName]);
+            set(serviceAndUpgrade.titleContent[cardName]);
         }
     }
 
@@ -40,5 +45,10 @@ public class cardInfo : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         if (status)
             infoUI.SetActive(true);
+    }
+
+    public void setStatus(bool status)
+    {
+        this.status = status;
     }
 }

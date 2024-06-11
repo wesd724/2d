@@ -32,7 +32,18 @@ public class showServiceText : MonoBehaviour
 
         tmp.text = "";
         return false;
+    }
 
+    public bool setText2(etcCardEffect effect)
+    {
+        if (effect.Multiple != 0)
+        {
+            tmp.text = $"x{effect.Multiple} ¹è¼ö";
+            return true;
+        }
+
+        tmp.text = "";
+        return false;
     }
 
     public void close()

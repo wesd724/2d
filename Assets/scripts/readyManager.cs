@@ -24,26 +24,29 @@ public class readyManager : MonoBehaviour
 
     IEnumerator re()
     {
-        StartCoroutine(changeDeckList.collect(27f, -100f, 0.3f));
-        StartCoroutine(upgradeList.collect(50.42f, -160f, 0.3f));
-        yield return StartCoroutine(serviceList.collect(53f, -159f, 0.3f));
-        yield return new WaitForSecondsRealtime(0.1f);
+        StartCoroutine(changeDeckList.collect(27f, -100f, 0.2f));
+        StartCoroutine(upgradeList.collect(50.42f, -160f, 0.2f));
+        yield return StartCoroutine(serviceList.collect(53f, -159f, 0.2f));
+        yield return new WaitForSecondsRealtime(0.05f);
 
-        yield return StartCoroutine(changeDeckList.expand(-100f, 27f, 0.3f));
-        yield return StartCoroutine(upgradeList.expand(-160f, 50.42f, 0.3f));
-        yield return StartCoroutine(serviceList.expand(-159f, 53f, 0.3f));
+        yield return StartCoroutine(showCard());
     }
 
     public IEnumerator show()
     {
-        yield return StartCoroutine(changeDeckList.expand(-100f, 27f, 0.3f));
-        yield return StartCoroutine(upgradeList.expand(-160f, 50.42f, 0.3f));
-        yield return StartCoroutine(serviceList.expand(-159f, 53f, 0.3f));
+        yield return StartCoroutine(showCard());
+    }
+
+    IEnumerator showCard()
+    {
+        yield return StartCoroutine(changeDeckList.expand(-100f, 27f, 0.2f));
+        yield return StartCoroutine(upgradeList.expand(-160f, 50.42f, 0.2f));
+        yield return StartCoroutine(serviceList.expand(-159f, 53f, 0.2f));
     }
     
     public void showBack()
     {
-        rerollPrice.text = "5";
+        rerollPrice.text = "2";
         changeDeckList.back();
         upgradeList.back();
         serviceList.back();

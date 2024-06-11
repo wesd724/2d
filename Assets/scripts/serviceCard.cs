@@ -47,6 +47,7 @@ public class serviceCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        AudioManager.instance.click();
         StartCoroutine(window.moveDown(-915, true));
         pos.sizeDelta = origin;
         cash.SetActive(false);
@@ -71,5 +72,6 @@ public class serviceCard : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
             startTime += Time.deltaTime;
             yield return null;
         }
+        selectPos.anchoredPosition = target;
     }
 }
