@@ -17,9 +17,14 @@ public class etcCardEffect
         this.Multiple = multiple;
     }
 
-    public void addMultiple(int n)
+    public etcCardEffect deepCopy()
     {
-        this.Multiple += n;
+        return new etcCardEffect(Chip, Multiple);
+    }
+
+    public void addMultiple()
+    {
+        this.Multiple++;
         if (this.Multiple > 6)
             this.Multiple = 6;
     }

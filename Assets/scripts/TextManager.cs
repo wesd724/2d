@@ -37,12 +37,14 @@ public class TextManager : MonoBehaviour
     void Start()
     {
         goal.text = "300";
+
         score.text = "0";
         handName.text = "";
         chip.text = "0";
         multiple.text = "0";
         handCount.text = "3";
         discardCount.text = "4";
+
         cash.text = "0";
         level.text = $"·¹º§{GameManager.wave}";
     }
@@ -69,7 +71,7 @@ public class TextManager : MonoBehaviour
         cash.text = "500";
         handCount.text = "30";
         discardCount.text = "40";
-        GameManager.discardStack = 15;
+        GameManager.discardStack = 3;
         foreach(var jk in jokbostack)
         {
             jk.text = "5";

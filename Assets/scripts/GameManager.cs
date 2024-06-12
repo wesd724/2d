@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
     public List<Image> serviceDeck = new List<Image>(); // 서비스 카드들의 이름
 
     private List<Card> cardInSlot = new List<Card>(); // 슬롯에 카드가 존재하는지 확인용 리스트
-    private List<string> hand = new List<string>(); // 족보 확인용
+    private List<Card> hand = new List<Card>(); // 족보 확인용
 
     public List<Card> useCard = new List<Card>(); // 사용한 카드(패 포함)
 
@@ -56,22 +56,23 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        Debug.Log(hand.Count);
         number = GameObject.Find("numberSprite");
         uiManager = GameObject.Find("UiManager").GetComponent<UiManager>();
         textManager = TextManager.instance;
-        textManager.test(); // 테스트 함수
         serviceAndUpgrade.initS();
-        updateServiceContent();
         StartCoroutine(startGame());
 
+        //textManager.test(); // 테스트 함수
         //uiManager.completeWindowOpen();
     }
 
     public IEnumerator startGame()
     {
+        updateServiceContent();
         deckButton.enabled = true; // 덱 버튼 사용 가능
         init();
-        yield return new WaitForSecondsRealtime(0.3f);
+        yield return new WaitForSecondsRealtime(0.05f);
         StartCoroutine(autoDrawCard(3));
         buttonClickStatus = true;
     }
@@ -102,7 +103,7 @@ public class GameManager : MonoBehaviour
                     AudioManager.instance.draw();
                     //Debug.Log($"{i + 1} 번째 카드 드로우!");
                     randCard.gameObject.SetActive(true);
-                    randCard.handIndex = i;
+                    randCard.slotIndex = i;
 
                     StartCoroutine(randCard.drawAnim(randCard.transform.position,
                         cardSlots[i].transform.position));
@@ -122,14 +123,14 @@ public class GameManager : MonoBehaviour
     }
 
 
-    public void addHand(string name)
+    public void addHand(Card card)
     {
-        hand.Add(name);
+        hand.Add(card);
     }
 
-    public void cancelHand(string name)
+    public void cancelHand(Card card)
     {
-        hand.Remove(name);
+        hand.Remove(card);
     }
 
     public int handCount()
@@ -137,7 +138,7 @@ public class GameManager : MonoBehaviour
         return hand.Count;
     }
 
-    public List<string> getHand()
+    public List<Card> getHand()
     {
         return hand;
     }
@@ -185,7 +186,6 @@ public class GameManager : MonoBehaviour
         if (buttonClickStatus && hand.Count > 0)
         {
             buttonClickStatus = false;
-            updateServiceContent();
             StartCoroutine(handPlayCoroutine());
         }
     }
@@ -251,16 +251,13 @@ public class GameManager : MonoBehaviour
 
     IEnumerator handPlayProcess(int count)
     {
-        yield return new WaitForSecondsRealtime(0.5f);
+        yield return new WaitForSecondsRealtime(0.2f);
         for (int i = 0; i < cardInSlot.Count; i++)
         {
             if (cardInSlot[i].hasSelected)
             {
-                for (int k = 1; k < 3; k++)
-                {
-                    cardInSlot[i].scaleUp(0.01f);
-                    yield return new WaitForSecondsRealtime(0.02f);
-                }
+                cardInSlot[i].scaleUp(0.01f);
+                yield return new WaitForSecondsRealtime(0.02f);
 
                 GameObject sprite = cardInSlot[i].getSpriteObject(number);
                 sprite.SetActive(true);
@@ -271,10 +268,9 @@ public class GameManager : MonoBehaviour
                 //Debug.Log($"{i + 1} 번째 카드 처리중");
                 yield return new WaitForSecondsRealtime(0.4f);
                 sprite.SetActive(false);
-                yield return new WaitForSecondsRealtime(0.3f);
+                yield return new WaitForSecondsRealtime(0.2f);
 
                 yield return StartCoroutine(upgradeCheck(cardName, cardInSlot[i].transform.position)); // 강화카드 적용
-
             }
         }
         //yield return StartCoroutine(emptyCard());
@@ -282,8 +278,9 @@ public class GameManager : MonoBehaviour
         // 여기서부터 서비스패에 대해 효과 적용
         yield return StartCoroutine(applyService());
         // 모든 카드 적용 끝
+        updateServiceContent(); // 서비스카드 성장형 효과 업데이트
         hand.Clear();
-        yield return new WaitForSecondsRealtime(0.3f);
+        yield return new WaitForSecondsRealtime(0.1f);
         yield return StartCoroutine(addScore());
         for (int i = cardInSlot.Count - 1; i >= 0; i--)
         {
@@ -297,7 +294,7 @@ public class GameManager : MonoBehaviour
         StartCoroutine(autoDrawCard(count));
     }
 
-    public IEnumerator emptyCard()
+    public IEnumerator emptyCard() // 사용안함
     {
         bool status = false; // empty 존재 확인
         for (int i = 0; i < 3; i++)
@@ -320,7 +317,7 @@ public class GameManager : MonoBehaviour
             GameObject sprite = number.transform.GetChild(13).gameObject;
             sprite.SetActive(true);
             addChip(30);
-            yield return new WaitForSecondsRealtime(0.4f);
+            yield return new WaitForSecondsRealtime(0.45f);
             sprite.SetActive(false);
             yield return new WaitForSecondsRealtime(0.3f);
         }
@@ -361,9 +358,9 @@ public class GameManager : MonoBehaviour
             {
                 addChip(30);
             }
-            yield return new WaitForSecondsRealtime(0.4f);
+            yield return new WaitForSecondsRealtime(0.45f);
             sprite.SetActive(false);
-            yield return new WaitForSecondsRealtime(0.3f);
+            yield return new WaitForSecondsRealtime(0.25f);
         }
         yield return new WaitForSecondsRealtime(0.05f);
     }
@@ -379,9 +376,9 @@ public class GameManager : MonoBehaviour
             {
                 showText.show();
                 effectProcess(effect);
-                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForSecondsRealtime(0.45f);
                 showText.close();
-                yield return new WaitForSecondsRealtime(0.3f);
+                yield return new WaitForSecondsRealtime(0.25f);
             }
         }
         // 일반 서비스패
@@ -395,9 +392,9 @@ public class GameManager : MonoBehaviour
             {
                 showText.show();
                 effectProcess2(effect);
-                yield return new WaitForSecondsRealtime(0.4f);
+                yield return new WaitForSecondsRealtime(0.45f);
                 showText.close();
-                yield return new WaitForSecondsRealtime(0.3f);
+                yield return new WaitForSecondsRealtime(0.25f);
             }
         }
         //전설 서비스패
@@ -410,10 +407,11 @@ public class GameManager : MonoBehaviour
         serviceDeck.ForEach(img =>
         {
             string name = img.sprite.name;
-            if(name == "ㅂㄹㄱ")
+            if (name == "ㅂㄹㄱ")
             {
                 d1 = true;
-            } else if(name == "ㅆㅇ")
+            }
+            if (name == "ㅆㅇ")
             {
                 d2 = true;
             }
@@ -468,6 +466,12 @@ public class GameManager : MonoBehaviour
             nextTurn();
             StopCoroutine(method);
             deckButton.enabled = false;
+
+            serviceDeck.ForEach(img =>
+            {
+                img.GetComponent<cardInfo>().setStatus(false); // hover 이벤트 끄기
+            });
+
             yield return StartCoroutine(clean());
             if (wave == 2 && round == 2)
             {
@@ -482,6 +486,10 @@ public class GameManager : MonoBehaviour
         else if (int.Parse(textManager.handCount.text) <= 0)
         {
             StopCoroutine(method);
+            serviceDeck.ForEach(img =>
+            {
+                img.GetComponent<cardInfo>().setStatus(false); // hover 이벤트 끄기
+            });
             yield return StartCoroutine(clean());
             uiManager.failWindowOpen();
         }
@@ -515,7 +523,7 @@ public class GameManager : MonoBehaviour
     IEnumerator autoDrawCard(int count)
     {
         nextTurn();
-        yield return new WaitForSecondsRealtime(0.3f);
+        yield return new WaitForSecondsRealtime(0.25f);
         for (int i = 0; i < count; i++)
         {
             DrawCard();
@@ -527,7 +535,7 @@ public class GameManager : MonoBehaviour
 
     public void watchDeck(bool status)
     {
-        foreach(Card card in cardInSlot)
+        foreach (Card card in cardInSlot)
         {
             card.GetComponent<BoxCollider2D>().enabled = status;
         }

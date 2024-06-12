@@ -16,11 +16,6 @@ public class service : MonoBehaviour
 
     void OnEnable()
     {
-        GameManager.instance.serviceDeck.ForEach(img =>
-        {
-            img.GetComponent<cardInfo>().setStatus(false);
-        });
-
         List<Transform> childs = new List<Transform>();
         foreach (Transform child in alreadyPickList.transform)
         {
@@ -38,24 +33,43 @@ public class service : MonoBehaviour
 
     public void setting()
     {
-        //전설급이 나올 확률은 매우 적음
+        //전설급이 나올 확률은 매우 적음 => 애초부터 전설 3장임
         //기본카드가 70 % 금색을 제외한 강화카드는 20 % 금색카드는 10 % 정도
-
-        // 사용가능한 서비스카드
-        int take = serviceCardList.transform.childCount >= 2 ? 2 : serviceCardList.transform.childCount == 1 ? 1 : 0;
-        //List<int> numbers =
-            //Enumerable.Range(0, serviceCardList.transform.childCount).OrderBy(x => Random.value).Take(take).ToList();
-        for (int i = 0; i < take; i++)
+        List<Transform> availableCards = new List<Transform>();
+        foreach(Transform child in serviceCardList.transform)
         {
-            int index = Enumerable.Range(0, serviceCardList.transform.childCount).OrderBy(x => Random.value).First();
-            Transform child = serviceCardList.transform.GetChild(index);
+            availableCards.Add(child);  // 현재 사용가능한 서비스카드 저장
+        }
+
+        int take = availableCards.Count >= 2 ? 2 : availableCards.Count == 1 ? 1 : 0;
+
+        for(int i = 0; i < take; i++)
+        {
+            int index = Random.Range(0, availableCards.Count);
+            Transform child = availableCards[index];
             Sprite sprite = child.GetComponent<Image>().sprite;
             images[i].enabled = true;
             images[i].sprite = sprite;
-            child.SetParent(null); // 이미 해당 턴에서 나온 서비스 카드 제외
-            child.SetParent(alreadyPickList.transform); // 해당 턴에서 나 온 서비스카드 저장
 
+            availableCards.RemoveAt(index); // 선택된 카드를 리스트에서 제거하고 부모를 변경
+            child.SetParent(alreadyPickList.transform);
         }
+
+        // 사용가능한 서비스카드
+        //int take = serviceCardList.transform.childCount >= 2 ? 2 : serviceCardList.transform.childCount == 1 ? 1 : 0;
+        ////List<int> numbers =
+        //    //Enumerable.Range(0, serviceCardList.transform.childCount).OrderBy(x => Random.value).Take(take).ToList();
+        //for (int i = 0; i < take; i++)
+        //{
+        //    int index = Enumerable.Range(0, serviceCardList.transform.childCount).OrderBy(x => Random.value).First();
+        //    Transform child = serviceCardList.transform.GetChild(index);
+        //    Sprite sprite = child.GetComponent<Image>().sprite;
+        //    images[i].enabled = true;
+        //    images[i].sprite = sprite;
+        //    child.SetParent(null); // 이미 해당 턴에서 나온 서비스 카드 제외
+        //    child.SetParent(alreadyPickList.transform); // 해당 턴에서 나 온 서비스카드 저장
+
+        //}
 
         for (int i = 0; i < 2; i++)
         {

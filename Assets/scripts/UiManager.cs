@@ -20,6 +20,10 @@ public class UiManager : MonoBehaviour
     public moveUI endWindow;
     public moveUI endExplain;
 
+    public moveUI startWindow;
+    public moveUI startExplain;
+
+    public GameObject gameManager;
     public readyManager readyManager;
 
     public void completeWindowOpen() // 목표 달성 완료 창
@@ -74,12 +78,12 @@ public class UiManager : MonoBehaviour
     {
         StartCoroutine(roundExplain.moveUp(770));
         StartCoroutine(selectAnimation());
-        StartCoroutine(GameManager.instance.startGame());
     }
 
     IEnumerator selectAnimation()
     {
         yield return StartCoroutine(roundSelect.moveDown(-1015));
+        StartCoroutine(GameManager.instance.startGame());
     }
 
     public void failWindowOpen() // 모든 라운드 완료 창
@@ -89,7 +93,7 @@ public class UiManager : MonoBehaviour
         StartCoroutine(failWindow.moveUp(-175));
     }
 
-    public void restart()
+    public void restart() // 다시 시작하기
     {
         StartCoroutine(re());
     }
@@ -100,6 +104,39 @@ public class UiManager : MonoBehaviour
         yield return StartCoroutine(failWindow.moveDown(-1015));
         gameInit();
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void endWindowOpen() // 끝 창
+    {
+        endWindow.transform.parent.gameObject.SetActive(true);
+        StartCoroutine(endExplain.explainDown(0));
+        StartCoroutine(endWindow.moveUp(-175));
+    }
+
+    public void restart2() 
+    {
+        StartCoroutine(re2());
+    }
+
+    IEnumerator re2()
+    {
+        StartCoroutine(endExplain.moveUp(1100));
+        yield return StartCoroutine(endWindow.moveDown(-1015));
+        gameInit();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void startWindowClose() // 시작화면에서 시작하기 버튼 클릭
+    {
+        StartCoroutine(re3());
+    }
+
+    IEnumerator re3()
+    {
+        StartCoroutine(startExplain.moveUp(1100));
+        yield return StartCoroutine(startWindow.moveDown(-1015)); // 시작 -190
+        //gameInit();
+        SceneManager.LoadScene("Game");
     }
 
     void gameInit()
@@ -114,27 +151,8 @@ public class UiManager : MonoBehaviour
         TextManager.instance = null;
         serviceAndUpgrade.initS();
         serviceAndUpgrade.initU();
+        // audoManger와 jokbolist는 초기화 안함.
 
-    }
-
-    public void endWindowOpen() // 끝 창
-    {
-        endWindow.transform.parent.gameObject.SetActive(true);
-        StartCoroutine(endExplain.explainDown(0));
-        StartCoroutine(endWindow.moveUp(-175));
-    }
-
-    public void restart2()
-    {
-        StartCoroutine(re2());
-    }
-
-    IEnumerator re2()
-    {
-        StartCoroutine(endExplain.moveUp(1100));
-        yield return StartCoroutine(endWindow.moveDown(-1015));
-        gameInit();
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void quit() // 게임 종료

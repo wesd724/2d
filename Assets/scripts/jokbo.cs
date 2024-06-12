@@ -9,17 +9,18 @@ public class jokbo
         ["»ïÆÈ±¤¶¯"] = new List<float> { 300f, 4f },
         ["±¤¶¯"] = new List<float> { 250f, 4f },
         ["¶¯"] = new List<float> { 100f, 4f },
-        ["¾Ë¸®"] = new List<float> { 80f, 3f },
-        ["µ¶»ç"] = new List<float> { 60f, 3f },
-        ["±¸»æ"] = new List<float> { 50f, 2f },
-        ["Àå»æ"] = new List<float> { 40f, 2f },
-        ["Àå»ç"] = new List<float> { 40f, 1.5f },
-        ["¼¼·ú"] = new List<float> { 20f, 1.5f },
-        ["²ý"] = new List<float> { 20f, 1f },
+        ["¾Ë¸®"] = new List<float> { 90f, 3f },
+        ["µ¶»ç"] = new List<float> { 70f, 3f },
+        ["±¸»æ"] = new List<float> { 55f, 2f },
+        ["Àå»æ"] = new List<float> { 45f, 2f },
+        ["Àå»ç"] = new List<float> { 50f, 1.5f },
+        ["¼¼·ú"] = new List<float> { 30f, 1.5f },
+        ["²ý"] = new List<float> { 30f, 1f },
     };
 
-    public static Hand handCheck(List<string> hand)
+    public static Hand handCheck(List<Card> handCard)
     {
+        List<string> hand = handCard.Select(card => card.getSpriteName()).ToList();
         if (hand.Count == 0)
         {
             return new Hand("", new List<float> { 0, 0 });
@@ -75,8 +76,9 @@ public class jokbo
         {
             return new Hand("²ý", jokboList["²ý"]);
         }
-        int sum = hand.Sum(x => int.Parse(x.Split("-")[0]));
-        string extra = sum.ToString()[^1].ToString();
+
+        //int sum = hand.Sum(x => int.Parse(x.Split("-")[0])); 
+        //string extra = sum.ToString()[^1].ToString(); // ¼ýÀÚ ÇÕÀÇ ³¡ÀÚ¸®
 
         return new Hand("²ý", jokboList["²ý"]);
     }

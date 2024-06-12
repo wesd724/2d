@@ -5,14 +5,12 @@ using UnityEngine;
 public class Card : MonoBehaviour
 {
     public bool hasSelected = false;
-    public int handIndex;
+    public int slotIndex = -1; // 슬롯에 있는 위치 인덱스
     public GameManager gm;
     private bool clicked = false;
     private bool mouseOver = false;
 
-    Vector2 origin; // 원래 카드 위치(슬롯 위)
-
-    private Sprite sprite;
+    Vector3 origin; // 원래 카드 위치(슬롯 위)
 
     void OnEnable()
     {
@@ -23,18 +21,18 @@ public class Card : MonoBehaviour
     {
         if (!hasSelected && gm.handCount() < 2)
         {
-            transform.position += Vector3.up * 0.6f;
+            gm.addHand(this);
+            transform.position = new Vector3(transform.position.x, -2.52f, transform.position.z);
             AudioManager.instance.select();
             hasSelected = true;
             clicked = true;
-            gm.addHand(GetComponent<SpriteRenderer>().sprite.name);
         }
-        else if (clicked)
+        else if (hasSelected)
         {
-            transform.position += Vector3.down * 0.6f;
+            gm.cancelHand(this);
+            transform.position = origin + Vector3.up * 0.1f;
             hasSelected = false;
             clicked = false;
-            gm.cancelHand(GetComponent<SpriteRenderer>().sprite.name);
         }
 
         Hand hand = jokbo.handCheck(gm.getHand());
@@ -44,7 +42,7 @@ public class Card : MonoBehaviour
     public void init()
     {
         hasSelected = false;
-        handIndex = -1;
+        slotIndex = -1;
         clicked = false;
         mouseOver = false;
     }
@@ -74,13 +72,13 @@ public class Card : MonoBehaviour
 
     public IEnumerator selectCard()
     {
-        gm.availableCardSlots[handIndex] = true;
+        gm.availableCardSlots[slotIndex] = true;
         yield return StartCoroutine(handAnim(transform.position, transform.position + Vector3.up * 2.2f));
     }
 
     public void end()
     {
-        gm.availableCardSlots[handIndex] = true;
+        gm.availableCardSlots[slotIndex] = true;
         StartCoroutine(drawAnim(transform.position, transform.position + new Vector3(10, 0, 0), 0.3f, true));
     }
 

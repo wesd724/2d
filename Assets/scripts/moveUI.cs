@@ -5,7 +5,7 @@ using UnityEngine;
 public class moveUI : MonoBehaviour
 {
     public RectTransform ui;
-    public IEnumerator moveUp(int y, float endTime = 0.25f)
+    public IEnumerator moveUp(int y, float endTime = 0.2f)
     {
         float startTime = 0f;
         Vector2 start = ui.anchoredPosition;
@@ -24,7 +24,7 @@ public class moveUI : MonoBehaviour
         ui.anchoredPosition = target;
     }
 
-    public IEnumerator moveDown(int y, bool flag = false, float endTime = 0.25f)
+    public IEnumerator moveDown(int y, bool flag = false, float endTime = 0.2f)
     {
         float startTime = 0f;
         Vector2 start = ui.anchoredPosition;
@@ -44,7 +44,7 @@ public class moveUI : MonoBehaviour
         ui.anchoredPosition = target;
     }
 
-    public IEnumerator explainDown(int y = 350, float endTime = 0.25f)
+    public IEnumerator explainDown(int y = 350, float endTime = 0.2f)
     {
         float startTime = 0f;
         Vector2 start = ui.anchoredPosition;

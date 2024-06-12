@@ -37,7 +37,7 @@ public class cardInfo : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if(status)
+        if(status || infoUI.activeSelf)
             infoUI.SetActive(false);
     }
 

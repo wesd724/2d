@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class serviceAndUpgrade
 {
@@ -83,9 +84,10 @@ public class serviceAndUpgrade
             ["ty"] = new string[] { "아무것도 없는 카드", "족보에 포함안된다.\n플레이할때 +30 칩" }, //강화카드
         };
     }
-    public static etcCardEffect checkService(List<string> hand, string name)
+    public static etcCardEffect checkService(List<Card> handCard, string name)
     {
-        Hand check = jokbo.handCheck(hand);
+        Hand check = jokbo.handCheck(handCard);
+        List<string> hand = handCard.Select(card => card.getSpriteName()).ToList();
         foreach (string card in hand)
         {
             if (int.TryParse(name, out int temp) && card.Split("-")[0] == name)
@@ -110,9 +112,9 @@ public class serviceAndUpgrade
             }
             else if (name == $"ㅈㄱ{check.HandName}")
             {
-                string cardName = $"ㅈㄱ{check.HandName}";
-                services[cardName].addMultiple(1);
-                return services[cardName];
+                etcCardEffect t = services[name].deepCopy();
+                services[name].addMultiple();
+                return t;
             }
             else if (name == "ㅂㄹㄱ")
             {

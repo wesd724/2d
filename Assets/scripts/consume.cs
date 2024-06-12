@@ -20,12 +20,13 @@ public class consume : MonoBehaviour
 
     public void setting()
     {
-        int[] numbers =
-            Enumerable.Range(0, consumeCardList.transform.childCount).OrderBy(x => Random.value).Take(3).ToArray();
+        //int[] numbers =
+        //    Enumerable.Range(0, consumeCardList.transform.childCount).OrderBy(x => Random.value).Take(3).ToArray();
 
         for (int i = 0; i < 3; i++)
         {
-            Transform child = consumeCardList.transform.GetChild(numbers[i]);
+            int index = percentage();
+            Transform child = consumeCardList.transform.GetChild(index);
             Sprite sprite = child.GetComponent<Image>().sprite;
             images[i].enabled = true;
             images[i].sprite = sprite;
@@ -33,6 +34,22 @@ public class consume : MonoBehaviour
             int price = checkPrice(sprite.name);
             texts[i].text = $"${price}";
             images[i].GetComponent<cardInfo>().judge(sprite.name[^2..]);
+        }
+    }
+
+    int percentage()
+    {
+        int count = consumeCardList.transform.childCount;
+        int p = Random.Range(1, 11); // 확률 10% ~ 100%
+        if(p == 1) // 금색 카드
+        {
+            return Random.Range(20, 40);
+        } else if(p > 1 && p <= 3) // 다른 강화카드
+        {
+            return Random.Range(40, count);
+        } else // 기본카드
+        {
+            return Random.Range(0, 20);
         }
     }
 
