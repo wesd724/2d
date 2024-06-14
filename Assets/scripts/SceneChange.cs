@@ -10,6 +10,7 @@ public class SceneChange : MonoBehaviour
     public void startGame() // 시작화면에서 시작하기 버튼 클릭
     {
         StartCoroutine(re());
+        GetComponent<AudioSource>().Play();
     }
 
     IEnumerator re()

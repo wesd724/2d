@@ -56,7 +56,6 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        Debug.Log(hand.Count);
         number = GameObject.Find("numberSprite");
         uiManager = GameObject.Find("UiManager").GetComponent<UiManager>();
         textManager = TextManager.instance;
@@ -326,7 +325,7 @@ public class GameManager : MonoBehaviour
     public IEnumerator upgradeCheck(string cardName, Vector3 slot)
     {
         char c = cardName[^1];
-        Debug.Log(c);
+        //Debug.Log(c);
         int index = 0;
         if (c == 's')
         {

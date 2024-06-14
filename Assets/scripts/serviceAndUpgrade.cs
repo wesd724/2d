@@ -23,8 +23,8 @@ public class serviceAndUpgrade
             ["8"] = new etcCardEffect(0, 4),
             ["9"] = new etcCardEffect(0, 4),
             ["10"] = new etcCardEffect(0, 4), // 월 강화
-            ["11r"] = new etcCardEffect(0, 4),
-            ["12r"] = new etcCardEffect(0, 6), // 광
+            ["11r"] = new etcCardEffect(0, 6),
+            ["12r"] = new etcCardEffect(0, 4), // 광
             ["an"] = new etcCardEffect(0, 6), // 동물
             ["ㅈㄱ광땡"] = new etcCardEffect(0, 2),
             ["ㅈㄱ끗"] = new etcCardEffect(0, 2),
@@ -76,7 +76,7 @@ public class serviceAndUpgrade
             ["coin"] = new string[] { "저축", "코인을 5개 보유 할 때마다 +1 배수 (최대 +5 배수)" },
             ["ㅈㅂㅁㅅㅌ"] = new string[] { "족보마스터", "모든 족보를 2회씩 플레이하면\nx7 배수" },
             ["ㅆㅇ"] = new string[] { $"쓰레기통의 왕", $"버리기 횟수가 12회가 되면 x4 배수\n현재 스택:{GameManager.discardStack_s}" }, // 성장형
-            ["ㄸㄱㅇ"] = new string[] { "난 똑같은 게 좋아", "같은 카드가 12장 이상이면 x5 배수" }, // 쓰레기의 왕
+            ["ㄸㄱㅇ"] = new string[] { "난 똑같은 게 좋아", "같은 카드가 6장 이상이면 x5 배수" }, // 쓰레기의 왕
             ["1s"] = new string[] { "달빛", "플레이할때 +10 칩" },
             ["2s"] = new string[] { "달빛", "플레이할때 +10 칩" },
             ["1g"] = new string[] { "햇빛", "플레이할때 +1 배수" },
@@ -152,7 +152,24 @@ public class serviceAndUpgrade
             if (countcards.ContainsKey(name))
             {
                 countcards[name]++;
-                if (countcards[name] >= 12)
+                if (countcards[name] >= 6)
+                {
+                    return true;
+                }
+            }
+            else
+            {
+                countcards[name] = 1;
+            }
+        }
+
+        foreach(Card card in GameManager.instance.useCard) // 사용한 패, 가진 패 모두 포함
+        {
+            string name = card.GetComponent<SpriteRenderer>().sprite.name;
+            if (countcards.ContainsKey(name))
+            {
+                countcards[name]++;
+                if (countcards[name] >= 6)
                 {
                     return true;
                 }
