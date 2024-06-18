@@ -18,8 +18,9 @@ public class serviceList : MonoBehaviour
         service.setting();
         yield return new WaitForSecondsRealtime(0.3f);
         float start = 0;
-
-        AudioManager.instance.spread();
+        
+        if(service.getTake() > 0)
+            AudioManager.instance.spread();
         while (start < duration)
         {
             hlg.spacing = Mathf.Lerp(current, target, start / duration);

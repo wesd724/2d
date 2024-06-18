@@ -19,8 +19,9 @@ public class completeManager : MonoBehaviour
 
     public void open(string score)
     {
-        stage.text = $"stage {GameManager.round + 1}";
-        int cash = GameManager.round != 2 ? 6 : 8;
+        stage.text = $"stage {GameManager.round + 1}"; // 마지막 라운드 처리 버그
+        int cash = GameManager.round != 2 ? 6 : 8; // 마지막 라운드 처리 버그
+        // GameManager의 checkRound() 먼저 실행해서 일어난 버그이다
         int handCount = int.Parse(TextManager.instance.handCount.text);
         complete.SetActive(true);
         goal.text = score;

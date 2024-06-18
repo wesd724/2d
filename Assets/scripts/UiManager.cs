@@ -146,8 +146,8 @@ public class UiManager : MonoBehaviour
         GameManager.discardStack = 0; // 버리기카드 누적
         GameManager.d2 = false;
         GameManager.discardStack_s = 0; // 쓰레기통의 왕 카드 누적
-        GameManager.round = -1;
         GameManager.wave = 0;
+        GameManager.round = -1;
         TextManager.instance = null;
         serviceAndUpgrade.initS();
         serviceAndUpgrade.initU();

@@ -65,6 +65,20 @@ public class TextManager : MonoBehaviour
         return true;
     }
 
+    public void setJokboCount(string jokboName, int count)
+    {
+        int index = Array.IndexOf(jokbo, jokboName);
+        jokbostack[index].text = (count).ToString();
+    }
+
+    public void setAllJokbo(int count)
+    {
+        for(int i = 0; i < jokbo.Length; i++)
+        {
+            jokbostack[i].text = (count).ToString();
+        }
+    }
+
     public void test()
     {
         goal.text = "10";

@@ -14,6 +14,8 @@ public class service : MonoBehaviour
     public GameObject alreadyPickList;
     public Image cardback;
 
+    private int c;
+
     void OnEnable()
     {
         List<Transform> childs = new List<Transform>();
@@ -42,7 +44,7 @@ public class service : MonoBehaviour
         }
 
         int take = availableCards.Count >= 2 ? 2 : availableCards.Count == 1 ? 1 : 0;
-
+        c = take;
         for(int i = 0; i < take; i++)
         {
             int index = Random.Range(0, availableCards.Count);
@@ -126,5 +128,10 @@ public class service : MonoBehaviour
         }
 
         return Random.Range(4, 7);
+    }
+
+    public int getTake()
+    {
+        return c;
     }
 }

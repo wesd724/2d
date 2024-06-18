@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
     public static int discardStack = 0; // 버리기카드 누적
     public static bool d2 = false;
     public static int discardStack_s = 0; // 쓰레기통의 왕 카드 누적
-    public static int wave = 0; // 한 웨이브당 3라운드 => 2,  round 1 설정
+    public static int wave = 0; // 한 웨이브당 3라운드 => 2,  round 1 설정, 원래는 0, -1
     public static int round = -1;
 
     GameObject number; // 점수 스프라이트 부모 오브젝트
@@ -403,6 +403,16 @@ public class GameManager : MonoBehaviour
     public void updateServiceContent()
     {
         serviceAndUpgrade.initU();
+        //if (d1 && serviceDeck.Find(img => img.sprite.name == "ㅂㄹㄱ") == null)  // 예전에는 있었지만 지금은 교체해서 없는 경우
+        //{
+        //    d1 = false;
+        //    discardStack = 0;
+        //}
+        //if (d2 && serviceDeck.Find(img => img.sprite.name == "ㅆㅇ") == null)
+        //{
+        //    d2 = false;
+        //    discardStack_s = 0;
+        //}
         serviceDeck.ForEach(img =>
         {
             string name = img.sprite.name;
@@ -415,7 +425,7 @@ public class GameManager : MonoBehaviour
                 d2 = true;
             }
             img.GetComponent<cardInfo>().judge(img.sprite.name);
-        });
+        });   
     }
 
     void effectProcess(etcCardEffect effect)
