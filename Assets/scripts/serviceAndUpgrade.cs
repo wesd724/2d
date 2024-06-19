@@ -61,7 +61,7 @@ public class serviceAndUpgrade
             ["10"] = new string[] { "단풍", "10월에 해당하는 카드를 플레이하면\n+4 배수" }, // 월 강화
             ["11r"] = new string[] { "비광", "광에 해당하는 카드를 플레이하면\n+6 배수" },
             ["12r"] = new string[] { "봉황", "광에 해당하는 카드를 플레이하면\n+4 배수" }, // 광
-            ["an"] = new string[] { "동물애호자", "동물그림이 있는 카드를 플레이하면\n+4배수" }, // 동물
+            ["an"] = new string[] { "동물애호자", "동물그림이 있는 카드를 플레이하면\n+6배수" }, // 동물
             ["ㅈㄱ광땡"] = new string[] { "광땡", $"광땡을 플레이 하면 +2배수\n광땡을 플레이 할 때마다 +1배수\n(최대 +6배수)\n현재 스택:{services["ㅈㄱ광땡"].Multiple - 2}\n+{services["ㅈㄱ광땡"].Multiple}배수 적용" },
             ["ㅈㄱ끗"] = new string[] { "망통", $"끗을 플레이 하면 +2배수\n끗을 플레이 할 때마다 +1배수\n(최대 +6배수)\n현재 스택:{services["ㅈㄱ끗"].Multiple - 2}\n+{services["ㅈㄱ끗"].Multiple}배수 적용" },
             ["ㅈㄱ독사"] = new string[] { "독사", $"독사 플레이 하면 +2배수\n독사를 플레이 할 때마다 +1배수\n(최대 +6배수)\n현재 스택:{services["ㅈㄱ독사"].Multiple - 2}\n+{services["ㅈㄱ독사"].Multiple}배수 적용" },
